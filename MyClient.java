@@ -15,12 +15,12 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 
-import java.awt.Dimension; 
-import java.awt.Graphics; 
-import java.awt.Graphics2D; 
-import java.awt.image.BufferedImage; 
-import java.io.File; 
-import javax.imageio.ImageIO; 
+import java.lang.Math;
+
+// import java.awt.Point;
+// import java.awt.Color;
+// import java.awt.BorderLayout;
+
 
 public class MyClient extends JFrame implements MouseListener,MouseMotionListener {
 	private JButton buttonArray[][];
@@ -29,23 +29,30 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
   private int myColor;
   private int myTurn;
   private ImageIcon myIcon, yourIcon;
-	private Container c;
+	// private Container c;
+  private JLayeredPane c;
+
 	// private ImageIcon blackIcon, whiteIcon, boardIcon;
-  private ImageIcon redIcon, blueIcon, orangeIcon;
+  private ImageIcon redIcon, blueIcon, orangeIcon, catIcon, bgImg;
 	PrintWriter out;
   JLabel theLabel1;
   JLabel theLabel2;
   JLabel theLabel3;
-  private JLabel guideArray[][];
-  private JLabel myArray[];
-  private JLabel yourArray[];
-  JLayeredPane layerPane;
+  JLabel bg;
+  private JButton guideArray[][];
+  private JButton myArray[];
+  private JButton yourArray[];
+  //JLayeredPane layerPane;
 
   SoundPlayer theSoundPlayer2;
 
   int boardIconCount = 0;
   int whiteIconCount = 0;
   int blackIconCount = 0;
+
+  // static final int BACKLAYER = 1;
+  // static final int FORELAYER = 2;
+  // BGImageLayeredPane layerPane;  
 
 	public MyClient() {
 		// 名前の入力ダイアログを開く
@@ -62,17 +69,29 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 		// ウィンドウを作成する
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);// ウィンドウを閉じるときに，正しく閉じるように設定する
 		setTitle("MyClient");// ウィンドウのタイトルを設定する
-		setSize(1200, 1100);// ウィンドウのサイズを設定する
-		c = getContentPane();// フレームのペインを取得する
-    c.setBackground(Color.WHITE);// ウィンドウの色の設定
+		setSize(1200, 850);// ウィンドウのサイズを設定する
+		// c = getContentPane();// フレームのペインを取得する
+    c = new JLayeredPane(); 
+    this.getContentPane().add(c);
+    c.setBackground(Color.RED);// ウィンドウの色の設定
+
+    bgImg = new ImageIcon("img/board1.png");
+    bg = new JLabel(bgImg);
+    c.add(bg);
+    bg.setBounds(250, 50,700,700);
+    c.setLayer(bg,0);
+    //guideArray[j][i].setContentAreaFilled(false);
+    //bg.setBorderPainted(false);
+
 
 		// アイコンの設定
 		// whiteIcon = new ImageIcon("White1.jpg");
 		// blackIcon = new ImageIcon("Black1.jpg");
 		// boardIcon = new ImageIcon("GreenFrame1.jpg");
-    redIcon = new ImageIcon("red1.png");
-    blueIcon = new ImageIcon("blue1.png");
-    orangeIcon = new ImageIcon("orange1.png");
+    myIcon = new ImageIcon("img/zibun1.png");
+    yourIcon = new ImageIcon("img/aite1.png");
+    orangeIcon = new ImageIcon("img/masu1.png");
+    catIcon = new ImageIcon("img/cat21.png");
 
 		c.setLayout(null);// 自動レイアウトの設定を行わない
 
@@ -104,56 +123,112 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     //   }
 		// }
 
-    // ガイドの生成
-		guideArray = new JLabel[9][5];
-    boolean f = false;
-		for(int j=0;j<9;j++){
-      if(j <5){
-        int n = j + 1;
-        System.out.println(n);
-        for(int i=0; i<n; i++){
-          guideArray[j][i] = new JLabel(orangeIcon);
-          c.add(guideArray[j][i]);
-          guideArray[j][i].setBounds(i*100+600-80*n+60*i,j*80+100,100,100);
-          guideArray[j][i].addMouseListener(this);
-          //guideArray[j][i].setActionCommand(Integer.toString(j*5+i));
-        }
-      }
-      else{
-        int n = -j + 9;
-        for(int i=0; i<n; i++){
-          guideArray[j][i] = new JLabel(orangeIcon);
-          c.add(guideArray[j][i]);
-          guideArray[j][i].setBounds(i*100+600-80*n+60*i,j*80+100,100,100);
-          guideArray[j][i].addMouseListener(this);
-          //guideArray[j][i].setActionCommand(Integer.toString(j*5+i));
-        }
+    // controlLabel = new JLabel();
+    // c.add(controlLabel);
+    // controlLabel.addMouseListener(this);
+    // controlLabel.setBackground(Color.BLUE);
+
+    // yourArray = new  JButton[5];
+    // for(int i=0; i<5; i++){
+    //   yourArray[i] = new JButton(blueIcon);
+    //   c.add(yourArray[i]);
+    //   yourArray[i].setBounds(i*100+600-80*(i+1)+60*i+80, i*80+20, 70, 70);
+    //   yourArray[i].setContentAreaFilled(false);
+    //   yourArray[i].setBorderPainted(false);
+    //   yourArray[i].addMouseListener(this);
+    //   // layerPane.add(yourArray[i]);
+		// 	// layerPane.setLayer(yourArray[i] , i);
+    // }
+
+    // myArray = new  JButton[5];
+    // for(int i=0; i<5; i++){
+    //   myArray[i] = new JButton(redIcon);
+    //   c.add(myArray[i]);
+    //   myArray[i].setBounds(i*100+115-80*(i+1)+60*i+80, i*80+500, 70, 70);
+    //   myArray[i].setContentAreaFilled(false);
+    //   myArray[i].setBorderPainted(false);
+    //   myArray[i].addMouseListener(this);
+    //   // layerPane.add(myArray[i]);
+		// 	// layerPane.setLayer(myArray[i], i);
+    // }
+    
+    // // ガイドの生成
+		// guideArray = new JButton[9][5];
+    // boolean f = false;
+		// for(int j=0;j<9;j++){
+    //   if(j <5){
+    //     int n = j + 1;
+    //     System.out.println(n);
+    //     for(int i=0; i<n; i++){
+    //       guideArray[j][i] = new JButton(orangeIcon);
+    //       c.add(guideArray[j][i]);
+    //       guideArray[j][i].setBounds(i*100+600-80*n+60*i,j*80+100,70,70);
+    //       guideArray[j][i].setContentAreaFilled(false);
+    //       guideArray[j][i].setBorderPainted(false);
+    //       guideArray[j][i].addMouseListener(this);
+    //       guideArray[j][i].setActionCommand(Integer.toString(5*(j+1)-4-4*i-1));
+    //     }
+    //   }
+    //   else{
+    //     int n = -j + 9;
+    //     for(int i=0; i<n; i++){
+    //       guideArray[j][i] = new JButton(orangeIcon);
+    //       c.add(guideArray[j][i]);
+    //       guideArray[j][i].setBounds(i*100+600-80*n+60*i,j*80+100,100,100);
+    //       guideArray[j][i].setContentAreaFilled(false);
+    //       guideArray[j][i].setBorderPainted(false);
+    //       guideArray[j][i].addMouseListener(this);
+    //       guideArray[j][i].setActionCommand(Integer.toString(j+17-4*i-1));
+    //     }
+    //   }
+		// }
+
+    // ガイドの生成ver2
+		guideArray = new JButton[5][5];
+		for(int j=0;j<5;j++){
+      for(int i=0; i<5; i++){
+        guideArray[j][i] = new JButton(orangeIcon);
+        c.add(guideArray[j][i]);
+        guideArray[j][i].setBounds(i*70+530-70*j,j*70+5+70*i,140,140);
+        guideArray[j][i].addMouseListener(this);
+        c.setLayer(guideArray[j][i],j*5+i+1);
+        guideArray[j][i].setActionCommand(Integer.toString(j*5+i));
+        guideArray[j][i].setContentAreaFilled(false);
+        guideArray[j][i].setBorderPainted(false);
       }
 		}
 
-    // JFrame frame = new JFrame();
-    // layerPane = new JLayeredPane();
-		// layerPane.setLayout(null);
+    // boolean f = false;
+		// for(int j=0;j<9;j++){
+    //   if(j <5){
+    //     int n = j + 1;
+    //     System.out.println(n);
+    //     for(int i=0; i<n; i++){
+    //       guideArray[j][i] = new JButton(orangeIcon);
+    //       c.add(guideArray[j][i]);
+    //       guideArray[j][i].setBounds(i*100+600-80*n+60*i,j*80+100,70,70);
+    //       guideArray[j][i].setContentAreaFilled(false);
+    //       guideArray[j][i].setBorderPainted(false);
+    //       guideArray[j][i].addMouseListener(this);
+    //       guideArray[j][i].setActionCommand(Integer.toString(5*(j+1)-4-4*i-1));
+    //     }
+    //   }
+    //   else{
+    //     int n = -j + 9;
+    //     for(int i=0; i<n; i++){
+    //       guideArray[j][i] = new JButton(orangeIcon);
+    //       c.add(guideArray[j][i]);
+    //       guideArray[j][i].setBounds(i*100+600-80*n+60*i,j*80+100,100,100);
+    //       guideArray[j][i].setContentAreaFilled(false);
+    //       guideArray[j][i].setBorderPainted(false);
+    //       guideArray[j][i].addMouseListener(this);
+    //       guideArray[j][i].setActionCommand(Integer.toString(j+17-4*i-1));
+    //     }
+    //   }
+		// }
 
-    yourArray = new  JLabel[5];
-    for(int i=0; i<5; i++){
-      yourArray[i] = new JLabel(blueIcon);
-      c.add(yourArray[i]);
-      yourArray[i].setBounds(i*100+600-80*(i+1)+60*i+80, i*80+20, 100, 100);
-      yourArray[i].addMouseListener(this);
-      // layerPane.add(yourArray[i]);
-			// layerPane.setLayer(yourArray[i] , i);
-    }
+  
 
-    myArray = new  JLabel[5];
-    for(int i=0; i<5; i++){
-      yourArray[i] = new JLabel(redIcon);
-      c.add(yourArray[i]);
-      yourArray[i].setBounds(i*100+115-80*(i+1)+60*i+80, i*80+500, 100, 100);
-      yourArray[i].addMouseListener(this);
-      // layerPane.add(myArray[i]);
-			// layerPane.setLayer(myArray[i], i);
-    }
 
     //frame.getContentPane().add(layerPane);
 
@@ -354,6 +429,19 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     JButton theButton = (JButton)e.getComponent();
     String theArrayIndex = theButton.getActionCommand();
     Icon theIcon = theButton.getIcon();
+
+    int temp = Integer.parseInt(theArrayIndex);
+    System.out.println("theArrayIndex="+temp);
+    
+    int x = temp % 5;
+    int y = temp / 5;
+
+    System.out.println("x="+x);
+    System.out.println("y="+y);
+
+    guideArray[y][x].setIcon(catIcon);
+
+    //label.setText("x:" + point.x + ",y:" + point.y);
     // if(theArrayIndex.equals("RESET")){
     //   String msg = "RESET";
     //   out.println(msg);
@@ -366,33 +454,62 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     //     out.flush();
     //   }     
 
-    //   if(theIcon == boardIcon){
-    //     int temp = Integer.parseInt(theArrayIndex);
-    //     System.out.println("theArrayIndex="+temp);
-    //     int x = temp % 8;
-    //     int y = temp / 8;
+    if(theIcon == orangeIcon){
+      //int temp = Integer.parseInt(theArrayIndex);
+      //System.out.println("theArrayIndex="+temp);
+      // int x = temp % 8;
+      // int y = temp / 8;
 
-    //     System.out.println("judgeButton="+judgeButton(y, x));
-    //     if(judgeButton(y, x)){
-    //       //置ける
-    //       System.out.println("実行");
-    //       theSoundPlayer2 = new SoundPlayer("443_2.wav");
-    //       String msg = "PLACE"+" "+theArrayIndex+" "+myColor;
-    //       out.println(msg);
-    //       out.flush();
-    //     } else {
-    //       //置けない
-    //       System.out.println("そこには配置できません");
-    //     }
-    //   }
-    //   repaint();//画面のオブジェクトを描画し直す
-    // }
+      //System.out.println("judgeButton="+judgeButton(y, x));
+      // if(judgeButton(temp)){
+      //   //置ける
+      //   System.out.println("実行");
+      //   theSoundPlayer2 = new SoundPlayer("443_2.wav");
+      //   String msg = "PLACE"+" "+theArrayIndex+" "+myColor;
+      //   out.println(msg);
+      //   out.flush();
+      // } else {
+      //   //置けない
+      //   System.out.println("そこには配置できません");
+      // }
+    }
+  //   repaint();//画面のオブジェクトを描画し直す
+  // }
 	}
 	
 	public void mouseEntered(MouseEvent e) {
+    // System.out.println("ホバー");
+    // JButton theButton = (JButton)e.getComponent();
+    // String theArrayIndex = theButton.getActionCommand();
+    // Icon theIcon = theButton.getIcon();
+
+    // int temp = Integer.parseInt(theArrayIndex);
+    // int x = temp % 5;
+    // int y = temp / 5;
+
+    // System.out.println("x="+x);
+    // System.out.println("y="+y);
+
+    // guideArray[y][x].setIcon(catIcon);
+    // c.setLayer(guideArray[y][x],1000);
+
 	}
 	
 	public void mouseExited(MouseEvent e) {
+    // System.out.println("ホバーおわり");
+    // JButton theButton = (JButton)e.getComponent();
+    // String theArrayIndex = theButton.getActionCommand();
+    // Icon theIcon = theButton.getIcon();
+
+    // int temp = Integer.parseInt(theArrayIndex);
+    // int x = temp % 5;
+    // int y = temp / 5;
+
+    // System.out.println("x="+x);
+    // System.out.println("y="+y);
+
+    // guideArray[y][x].setIcon(orangeIcon);
+    // c.setLayer(guideArray[y][x],y*5+x+1);
 	}
 	
 	public void mousePressed(MouseEvent e) {
@@ -407,21 +524,25 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 	public void mouseMoved(MouseEvent e) {
 	}
 
-  // // 置ける盤面かどうかを判定する関数
-  // public boolean judgeButton(int y, int x) {
+  // 置ける盤面かどうかを判定する関数
+  // public boolean judgeButton(int temp) {
   //   boolean flag = false;
+
+  //   int x = temp % 5;
+  //   int y = temp / 5;
+    
   //   for (int j=-1;j<2;j++){
   //     for (int i=-1;i<2;i++){
-  //       int posY = y + j;
   //       int posX = x + i;
+  //       int posY = y + j;
 
-  //       if(isExceededArea(posY, posX)){
+  //       if(isExceededArea(posX, posY)){
   //         continue;
   //       }
 
   //       Icon theIcon = buttonArray[posY][posX].getIcon();
-  //       int flipNum = flipButtons(y, x, j, i, true);
-        
+  //       int flipNum = flipButtons(y, x, j, i, true);        
+
   //       if(flipNum >= 1){
   //         flag=true;
   //         for(int dy=j, dx=i, k=0; k<flipNum; k++, dy+=j, dx+=i){
@@ -434,14 +555,14 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
   //           out.println(msg);
   //           out.flush();
   //         }
-  //       }
+  //       }        
   //     }
   //   }
   //   return flag;
   // }
 
-  // // ひっくり返すことのできる盤面の個数を返す関数
-  // // 引数sで数えるアイコンの種類を変更、trueならyourIcon、falseならmyIconを数える
+  // ひっくり返すことのできる盤面の個数を返す関数
+  // 引数sで数えるアイコンの種類を変更、trueならyourIcon、falseならmyIconを数える
   // public int flipButtons(int y, int x, int j, int i, boolean s){
   //   int flipNum = 0;
   //   if ( (j==0) && (i==0) ) return 0;
@@ -478,9 +599,9 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
   //   return flipNum;
   // }
 
-  // // 座標が8×8のマス目を超えているかどうかを判定する関数
-  // public boolean isExceededArea(int posY, int posX){
-  //   return posX < 0 || posY < 0 || posX > 7 || posY > 7;
+  // 座標が8×8のマス目を超えているかどうかを判定する関数
+  // public boolean isExceededArea(int posX, int posY){
+  //   return posX < 0 || posY < 0 || posX > 5 || posY > 5;
   // }
 
   // // 黒、白、ボード、それぞれの数を数える関数
