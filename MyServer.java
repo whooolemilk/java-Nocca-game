@@ -36,13 +36,13 @@ class ClientProcThread extends Thread {
 						myOut.println("Good bye!");
 						break;
 					}
-					MyServer2.SendAll(str, myName);//サーバに来たメッセージは接続しているクライアント全員に配る
+					MyServer.SendAll(str, myName);//サーバに来たメッセージは接続しているクライアント全員に配る
 				}
 			}
 		} catch (Exception e) {
 			//ここにプログラムが到達するときは，接続が切れたとき
 			System.out.println("Disconnect from client No."+number+"("+myName+")");
-			MyServer2.SetFlag(number, false);//接続が切れたのでフラグを下げる
+			MyServer.SetFlag(number, false);//接続が切れたのでフラグを下げる
 		}
 	}
 }
