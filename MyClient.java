@@ -21,7 +21,8 @@ import java.awt.BorderLayout;
 
 public class MyClient extends JFrame implements MouseListener,MouseMotionListener, ActionListener {
   // フィールド宣言
-  private JButton boardArray[][], winButtonArray[];// ボード5*5
+  private static JButton boardArray[][];
+  JButton winButtonArray[];// ボード5*5
   private JButton startButton, howToPlayButton, myAreaButton, yourAreaButton;
   private int myColor, myNumber, myTurn;
   private ImageIcon myIcon, yourIcon, character1Img, character2Img, character3Img;
@@ -32,15 +33,16 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
   private JLabel bg;
   private JPanel scene1, scene2;
   private boolean mySelect, winFlag;
-  private ImageIcon redIcon, blueIcon, orangeIcon, catIcon, rbIcon, brIcon;
+  private static ImageIcon redIcon, blueIcon, orangeIcon;
+  private ImageIcon catIcon, rbIcon, brIcon;
   private ImageIcon s_rbIcon, s_brIcon, s_redIcon, s_blueIcon, s_orangeIcon, s_catIcon;
   private ImageIcon bgImg, guideIcon;
   private ImageIcon g_redIcon, g_blueIcon;
 	PrintWriter out;
   SoundPlayer theSoundPlayer2;
   
-  JPanel scenePanel;
-  CardLayout layout;
+  static JPanel scenePanel;
+  static CardLayout layout;
 
   // コンストラクタ
 	public MyClient() {
@@ -177,6 +179,8 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
       winButtonArray[i].setContentAreaFilled(false);
       winButtonArray[i].setBorderPainted(false);
     }
+
+    setUser();
     // myAreaButton = new JButton(rbIcon);
     // scene3.add(myAreaButton);
     // myAreaButton.setBounds(740,90,140,140);
@@ -193,15 +197,12 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     // yourAreaButton.setContentAreaFilled(false);
     // yourAreaButton.setBorderPainted(false); 
 
-    boardArray[0][1].setIcon(redIcon);
-    boardArray[0][2].setIcon(redIcon);
-    boardArray[0][3].setIcon(redIcon);
-    boardArray[0][4].setIcon(redIcon);
-
-    boardArray[4][1].setIcon(blueIcon);
-    boardArray[4][2].setIcon(blueIcon);
-    boardArray[4][3].setIcon(blueIcon);
-    boardArray[4][4].setIcon(blueIcon);
+    for(int i=0; i<5; i++){
+      boardArray[0][i].setIcon(redIcon);
+    }
+    for(int i=0; i<5; i++){
+      boardArray[4][i].setIcon(blueIcon);
+    }
 
     scenePanel = new JPanel();
     layout = new CardLayout();
@@ -518,14 +519,20 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
       scene3.setLayer(chara3,1000);
       layout.next(scenePanel);
     }
+
+    boolean flag =false;
     if(myTurn==1){
       if(winFlag){
         if (cmd.equals("0")||cmd.equals("1")){
           JButton theButton = (JButton)e.getSource();
           String theNumber = theButton.getActionCommand();
+          flag=true;
           String msg = "WIN"+" "+theNumber+" "+myColor;
           out.println(msg);
           out.flush();
+          WinDialogWindow dlg = new WinDialogWindow(this);
+          dlg.add(new JButton());
+          setVisible(true);
         }
       }
     }
@@ -561,42 +568,9 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
         out.println(msg);
         out.flush();
       }
-    }
+    }    
 
-    //label.setText("x:" + point.x + ",y:" + point.y);
-    // if(theArrayIndex.equals("RESET")){
-    //   String msg = "RESET";
-    //   out.println(msg);
-    //   out.flush();
-    // }     
-    // if(myTurn==1){
-    //   if(theArrayIndex.equals("PASS")){
-    //     String msg = "PASS";
-    //     out.println(msg);
-    //     out.flush();
-    //   }     
-
-    if(theIcon == orangeIcon){
-      //int temp = Integer.parseInt(theArrayIndex);
-      //System.out.println("theArrayIndex="+temp);
-      // int x = temp % 8;
-      // int y = temp / 8;
-
-      //System.out.println("judgeButton="+judgeButton(y, x));
-      // if(judgeButton(temp)){
-      //   //置ける
-      //   System.out.println("実行");
-      //   theSoundPlayer2 = new SoundPlayer("443_2.wav");
-      //   String msg = "PLACE"+" "+theArrayIndex+" "+myColor;
-      //   out.println(msg);
-      //   out.flush();
-      // } else {
-      //   //置けない
-      //   System.out.println("そこには配置できません");
-      // }
-    }
   repaint();//画面のオブジェクトを描画し直す
-  // }
 	}
 	
 	public void mouseEntered(MouseEvent e) {
@@ -746,187 +720,24 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     }
   }
 
+  public static void resetBoard(){
+    boardArray = new JButton[5][5];
+		for(int j=0;j<5;j++){
+      for(int i=0; i<5; i++){
+        boardArray[j][i].setIcon(orangeIcon);
+      }
+    }
+    setUser();
+  }
 
-  // 置ける盤面かどうかを判定する関数
-  // public boolean judgeButton(int temp) {
-  //   boolean flag = false;
-
-  //   int x = temp % 5;
-  //   int y = temp / 5;
-    
-  //   for (int j=-1;j<2;j++){
-  //     for (int i=-1;i<2;i++){
-  //       int posX = x + i;
-  //       int posY = y + j;
-
-  //       if(isExceededArea(posX, posY)){
-  //         continue;
-  //       }
-
-  //       Icon theIcon = buttonArray[posY][posX].getIcon();
-  //       int flipNum = flipButtons(y, x, j, i, true);        
-
-  //       if(flipNum >= 1){
-  //         flag=true;
-  //         for(int dy=j, dx=i, k=0; k<flipNum; k++, dy+=j, dx+=i){
-  //           //ボタンの位置情報を作る
-  //           int msgy = y + dy;
-  //           int msgx = x + dx;
-  //           int theArrayIndex = msgy*8 + msgx;
-  //           //サーバに情報を送る
-  //           String msg = "FLIP"+" "+theArrayIndex+" "+myColor;
-  //           out.println(msg);
-  //           out.flush();
-  //         }
-  //       }        
-  //     }
-  //   }
-  //   return flag;
-  // }
-
-  // ひっくり返すことのできる盤面の個数を返す関数
-  // 引数sで数えるアイコンの種類を変更、trueならyourIcon、falseならmyIconを数える
-  // public int flipButtons(int y, int x, int j, int i, boolean s){
-  //   int flipNum = 0;
-  //   if ( (j==0) && (i==0) ) return 0;
-  //   for(int dy=j, dx=i; ; dy+=j, dx+=i) {
-  //     int posY = y + dy;
-  //     int posX = x + dx;
-
-  //     if(isExceededArea(posY, posX)){
-  //       return 0;
-  //     }
-
-  //     Icon theIcon = buttonArray[posY][posX].getIcon();
-
-  //     if(s){
-  //       if(theIcon == boardIcon){
-  //         flipNum = 0;
-  //         break;
-  //       }else if(theIcon == myIcon){
-  //         break;
-  //       }else if (theIcon == yourIcon){
-  //         flipNum++;
-  //       }
-  //     }else{
-  //       if(theIcon == boardIcon){
-  //         flipNum = 0;
-  //         break;
-  //       }else if(theIcon == yourIcon){
-  //         break;
-  //       }else if (theIcon == myIcon){
-  //         flipNum++;
-  //       }
-  //     }
-  //   }
-  //   return flipNum;
-  // }
-
-
-
-  // // 黒、白、ボード、それぞれの数を数える関数
-  // public void colorCount(){
-  //   boardIconCount = 0;
-  //   whiteIconCount = 0;
-  //   blackIconCount = 0;
-  //   for(int ia = 0; ia <8; ia++){
-  //     for(int ja = 0; ja < 8; ja++){
-  //       Icon theIcon = buttonArray[ia][ja].getIcon();
-  //       if(theIcon == boardIcon){
-  //         boardIconCount ++;
-  //       }else if(theIcon == whiteIcon){
-  //         whiteIconCount ++;
-  //       }else if(theIcon == blackIcon){
-  //         blackIconCount ++;
-  //       }
-  //     }
-  //   }
-  // }
-
-  // // 勝敗判定を行い、テキスト表示する関数
-  // public void winJudge(){
-  //   if(whiteIconCount==blackIconCount){
-  //     theLabel2.setText("<html>ひきわけだよ！</html>");
-  //     System.out.println("ひきわけ");
-  //   }else if(whiteIconCount>blackIconCount){
-  //     if(myIcon == whiteIcon){
-  //       theLabel2.setText("<html>勝ち！おめでとう！</html>");
-  //       System.out.println("勝ち");
-  //     }else{
-  //       theLabel2.setText("<html>負け！残念！</html>");
-  //       System.out.println("負け");
-  //     }
-  //   }else{
-  //     if(myIcon == blackIcon){
-  //       theLabel2.setText("<html>勝ち！おめでとう！</html>");
-  //       System.out.println("勝ち");
-  //     }else{
-  //       theLabel2.setText("<html>負け！残念！</html>");
-  //       System.out.println("負け");
-  //     }
-  //   }
-  // }
-
-
-  // // パスを判定に使う関数
-  // public boolean passJudge(int y, int x, boolean s) {
-  //   boolean flag = false;
-  //   int flipNum = 0;
-  //   for (int j=-1; j<=1; j++){
-  //     for (int i=-1; i<=1; i++){
-  //       if ( (j==0) && (i==0) ) continue;
-  //       if(s){
-  //         if(myTurn==1){
-  //           flipNum = flipButtons(y, x, j, i, false);
-  //         }else{
-  //           flipNum = flipButtons(y, x, j, i, true);
-  //         }
-  //       }else{
-  //         if(myTurn==1){
-  //           flipNum = flipButtons(y, x, j, i, true);
-  //         }else{
-  //           flipNum = flipButtons(y, x, j, i, false);
-  //         }
-  //       }
-  //       if (flipNum >= 1){
-  //         flag = true;
-  //         break;
-  //       }
-  //     }
-  //   }
-  //   return flag;
-  // }
-
-  // // ゲームの終了を判定するためのカウント関数
-  // // 0ならゲーム終了
-  // public int endJudgeCount(){
-  //   int count = 0;
-  //   for (int j = 0; j < 8; j++) {
-  //     for (int i = 0; i < 8; i++) {
-  //       Icon theIcon = buttonArray[j][i].getIcon();
-  //       if((theIcon == boardIcon) && passJudge(j, i, false)) {
-  //         count++;
-  //       }
-  //     }
-  //   }
-  //   System.out.println("judgeCount="+count);
-  //   return count;
-  // }
-
-  // // パスできるか判定するためのカウント関数
-  // // ０ならぱす、それ以外なら次の人に
-  // public int passJudgeCount(){
-  //   int count = 0;
-  //   for (int j = 0; j < 8; j++) {
-  //       for (int i = 0; i < 8; i++) {
-  //         Icon theIcon = buttonArray[j][i].getIcon();
-  //         if((theIcon == boardIcon) && passJudge(j, i, true)) {
-  //               count++;
-  //           }
-  //       }
-  //   }
-  //   return count;
-  // }
+  public static void setUser(){
+    for(int i=0; i<5; i++){
+      boardArray[0][i].setIcon(redIcon);
+    }
+    for(int i=0; i<5; i++){
+      boardArray[4][i].setIcon(blueIcon);
+    }
+  }
   
   // 内部クラス２：音楽再生
   public class SoundPlayer{
@@ -987,4 +798,50 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
       stopFlag = true;
     }
   }
+  
+}
+
+//ダイアログのためのクラス
+//絵をクリックしたら閉じるようにしている
+class WinDialogWindow extends JDialog implements ActionListener{
+    WinDialogWindow(JFrame owner) {
+        super(owner);//呼び出しもととの親子関係の設定．これをコメントアウトすると別々のダイアログになる
+
+		    Container c = this.getContentPane();	//フレームのペインを取得する
+        c.setLayout(null);		//自動レイアウトの設定を行わない
+        c.setBackground(Color.green);
+
+        setTitle("You Win!");//タイトルの設定
+        setSize(800, 500);//大きさの設定
+        setResizable(false);//拡大縮小禁止//trueにすると拡大縮小できるようになる
+        setUndecorated(true); //タイトルを表示しない
+        setModal(true);//上を閉じるまで下を触れなくする（falseにすると触れる）
+
+        JButton rePlayButton = new JButton("もういっかい");
+        JButton endButton = new JButton("タイトルに戻る");
+        c.add(rePlayButton);
+        c.add(endButton);
+        rePlayButton.addActionListener(this);
+        rePlayButton.setActionCommand("REPLAY");
+        endButton.addActionListener(this);
+        endButton.setActionCommand("END");
+
+        rePlayButton.setBounds(250, 200, 300, 100);
+        endButton.setBounds(250, 350, 300, 100);
+        //ダイアログの大きさや表示場所を変更できる
+        //親のダイアログの中心に表示したい場合は，親のウィンドウの中心座標を求めて，子のダイアログの大きさの半分ずらす
+        setLocation(owner.getBounds().x+owner.getWidth()/2-this.getWidth()/2,owner.getBounds().y+owner.getHeight()/2-this.getHeight()/2);
+        setVisible(true);
+    }
+    public void actionPerformed(ActionEvent e) {
+      String cmd = e.getActionCommand();
+      if (cmd.equals("REPLAY")){
+        //layout.first(scenePanel);
+        this.dispose();//Dialogを廃棄する
+        MyClient.resetBoard();
+      }else if (cmd.equals("END")){
+        MyClient.layout.first(MyClient.scenePanel);
+        this.dispose();//Dialogを廃棄する
+      }
+    }
 }
