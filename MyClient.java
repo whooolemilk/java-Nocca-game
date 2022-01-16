@@ -8,49 +8,41 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
 
-// 音楽再生時に必要
+// 音楽再生
 import java.io.File;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 
-// aa
+// 画面遷移
 import java.awt.CardLayout;
 import java.awt.BorderLayout;
 
 public class MyClient extends JFrame implements MouseListener,MouseMotionListener, ActionListener {
-	private JButton buttonArray[][];
-  private JButton passButton;
-  private JButton resetButton;
-  private int myColor, myNumber;
-  private int myTurn;
-  private ImageIcon myIcon, yourIcon, mydoubleIcon, yourdoubleIcon, s_myIcon, s_yourIcon, s_doubleIcon, g_myIcon, g_yourIcon, s_mydoubleIcon, s_yourdoubleIcon;
-	// private Container c;
-  private JLayeredPane c, card2;
-  private boolean mySelect;
-	// private ImageIcon blackIcon, whiteIcon, boardIcon;
-  private ImageIcon redIcon, blueIcon, orangeIcon, catIcon, rbIcon, brIcon, s_rbIcon, s_brIcon, s_redIcon, s_blueIcon, s_orangeIcon, s_catIcon, bgImg, guideIcon,g_redIcon, g_blueIcon;
+  // フィールド宣言
+  private JButton boardArray[][], winButtonArray[];// ボード5*5
+  private JButton startButton, howToPlayButton, myAreaButton, yourAreaButton;
+  private int myColor, myNumber, myTurn;
+  private ImageIcon myIcon, yourIcon, character1Img, character2Img, character3Img;
+  private ImageIcon mydoubleIcon, yourdoubleIcon;
+  private ImageIcon s_myIcon, s_yourIcon, s_doubleIcon, s_mydoubleIcon, s_yourdoubleIcon; // 選択状態アイコン
+  private ImageIcon g_myIcon, g_yourIcon;
+  private JLayeredPane c, scene3;
+  private JLabel bg;
+  private JPanel scene1, scene2;
+  private boolean mySelect, winFlag;
+  private ImageIcon redIcon, blueIcon, orangeIcon, catIcon, rbIcon, brIcon;
+  private ImageIcon s_rbIcon, s_brIcon, s_redIcon, s_blueIcon, s_orangeIcon, s_catIcon;
+  private ImageIcon bgImg, guideIcon;
+  private ImageIcon g_redIcon, g_blueIcon;
 	PrintWriter out;
-  JLabel theLabel1;
-  JLabel theLabel2;
-  JLabel theLabel3;
-  JLabel bg;
-  JPanel card1,card3;
-  private JButton guideArray[][];
-  private JButton myArray[];
-  private JButton yourArray[];
-  //JLayeredPane layerPane;
-
   SoundPlayer theSoundPlayer2;
   
-  JPanel cardPanel;
+  JPanel scenePanel;
   CardLayout layout;
 
-  int boardIconCount = 0;
-  int whiteIconCount = 0;
-  int blackIconCount = 0;  
-
+  // コンストラクタ
 	public MyClient() {
 		// 名前の入力ダイアログを開く
 		String myName = JOptionPane.showInputDialog(null,"名前を入力してください","名前の入力",JOptionPane.QUESTION_MESSAGE);
@@ -66,20 +58,18 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 		// ウィンドウを作成する
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);// ウィンドウを閉じるときに，正しく閉じるように設定する
 		setTitle("MyClient");// ウィンドウのタイトルを設定する
-		setSize(1200, 850);// ウィンドウのサイズを設定する
-
+		setSize(1024, 786);// ウィンドウのサイズを設定する
   
 		//c = getContentPane();// フレームのペインを取得する
-    c = new JLayeredPane(); 
-    this.getContentPane().add(c);
-    c.setBackground(Color.RED);// ウィンドウの色の設定
+    // c = new JLayeredPane();//layerフレームのペインを作成
+    // this.getContentPane().add(c);
 
     // boardの設定
-    bgImg = new ImageIcon("img/board1.png");
-    bg = new JLabel(bgImg);
-    c.add(bg);
-    bg.setBounds(250, 50,700,700);
-    c.setLayer(bg,1000);
+    // bgImg = new ImageIcon("img/board1.png");
+    // bg = new JLabel(bgImg);
+    // c.add(bg);
+    // bg.setBounds(250, 50,700,700);
+    // c.setLayer(bg,1000);
 
 
 		// アイコンの設定
@@ -90,6 +80,11 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     catIcon = new ImageIcon("img/cat21.png");
     rbIcon = new ImageIcon("img/akaue1.png");
     brIcon = new ImageIcon("img/aoue1.png");
+    bgImg = new ImageIcon("img/board1.png");
+
+    character1Img = new ImageIcon("img/character1.png");
+    character2Img = new ImageIcon("img/character2.png");
+    character3Img = new ImageIcon("img/character3.png");
 
 
     s_redIcon = new ImageIcon("img/s-zibun1.png");
@@ -102,103 +97,145 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     g_redIcon = new ImageIcon("img/g-zibun1.png");
     g_blueIcon = new ImageIcon("img/g-aite1.png");
 
-		c.setLayout(null);// 自動レイアウトの設定を行わない 
+		// c.setLayout(null);// 自動レイアウトの設定を行わない 
 
-    /* カード1 */
-    card1 = new JPanel();
-    card1.add(new JLabel("タイトル"));
+    /* -----------------------scene1------------------------- */
+    scene1 = new JPanel();
+    JLabel title = new JLabel("タイトル");
+    scene1.add(title);
+    scene1.setLayout(null);
+    startButton = new JButton("はじめる");
+    howToPlayButton = new JButton("あそびかた");
+    scene1.add(startButton);
+    scene1.add(howToPlayButton);
+    startButton.addActionListener(this);
+    startButton.setActionCommand("Start");
 
-    // bgImg = new ImageIcon("img/board1.png");
-    // bg = new JLabel(bgImg);
-    // card1.add(bg);
-    // bg.setBounds(250, 50,700,700);
-    // card1.setLayer(bg,1000);
+    title.setBounds(362,150, 300, 100);
+    title.setFont(new Font(Font.DIALOG_INPUT, Font.BOLD, 70));
+    startButton.setBounds(362, 420, 300, 100);
+    howToPlayButton.setBounds(362, 550, 300, 100);
 
-    /* カード2 */
+    /* -----------------------scene2------------------------- */
+    scene2 = new JPanel();
+    scene2.setLayout(null);
+    JButton c1Button = new JButton(character1Img);
+    JButton c2Button = new JButton(character2Img);
+    JButton c3Button = new JButton(character3Img);
+    scene2.add(c1Button);
+    scene2.add(c2Button);
+    scene2.add(c3Button);
+
+    // boardArray[j][i].setBounds(x,y,xs,ys);
+    c1Button.addActionListener(this);
+    c1Button.setActionCommand("character1");
+    c2Button.addActionListener(this);
+    c2Button.setActionCommand("character2");
+    c3Button.addActionListener(this);
+    c3Button.setActionCommand("character3");
+
+    c1Button.setBounds(22, 200, 300, 300);
+    c2Button.setBounds(362, 200, 300, 300);
+    c3Button.setBounds(702, 200, 300, 300);
+
+
+
+    /* -----------------------scene3------------------------- */
+    scene3 = new JLayeredPane();
+    scene3.add(new JLabel("label"));
+    scene3.add(new JTextField("", 10));
     
-    card2 = new JLayeredPane();
-    card2.add(new JLabel("label"));
-    card2.add(new JTextField("", 10));
+    
+    bg = new JLabel(bgImg);
+    scene3.add(bg);
+    bg.setBounds(250, 50,700,700);
+    scene3.setLayer(bg,0);
 
     // ガイドの生成ver2
-		guideArray = new JButton[5][5];
+		boardArray = new JButton[5][5];
 		for(int j=0;j<5;j++){
       for(int i=0; i<5; i++){
-        guideArray[j][i] = new JButton(orangeIcon);
-        card2.add(guideArray[j][i]);
-        guideArray[j][i].setBounds(i*70+530-70*j,j*70+5+70*i,140,140);
-        guideArray[j][i].addMouseListener(this);
-        card2.setLayer(guideArray[j][i], j*5+i+1);
-        guideArray[j][i].setActionCommand(Integer.toString(j*5+i));
-        //guideArray[j][i].setContentAreaFilled(false);
-        //guideArray[j][i].setBorderPainted(false);
+        boardArray[j][i] = new JButton(orangeIcon);
+        scene3.add(boardArray[j][i]);
+        boardArray[j][i].setBounds(i*70+530-70*j,j*70+5+70*i,140,140);
+        boardArray[j][i].addMouseListener(this);
+        scene3.setLayer(boardArray[j][i], j*5+i+1);
+        boardArray[j][i].setActionCommand(Integer.toString(j*5+i));
+        boardArray[j][i].setContentAreaFilled(false);
+        boardArray[j][i].setBorderPainted(false);
       }
 		}
 
-    JButton myAreaButton = new JButton(rbIcon);
-    card2.add(myAreaButton);
-    myAreaButton.setBounds(740,90,140,140);
-    myAreaButton.addMouseListener(this);
-    myAreaButton.setActionCommand("111");
-    myAreaButton.setContentAreaFilled(false);
-    myAreaButton.setBorderPainted(false);    
+    winButtonArray = new JButton[2];
+    for(int i=0; i<2; i++){
+      String j = Integer.toString(i);
+      winButtonArray[i] = new JButton(rbIcon);
+      scene3.add(winButtonArray[i]);
+      winButtonArray[i].setBounds(740-490*i,90+410*i,140,140);
+      winButtonArray[i].addActionListener(this);
+      winButtonArray[i].setActionCommand(j);
+      winButtonArray[i].setContentAreaFilled(false);
+      winButtonArray[i].setBorderPainted(false);
+    }
+    // myAreaButton = new JButton(rbIcon);
+    // scene3.add(myAreaButton);
+    // myAreaButton.setBounds(740,90,140,140);
+    // myAreaButton.addActionListener(this);
+    // myAreaButton.setActionCommand("1");
+    // myAreaButton.setContentAreaFilled(false);
+    // myAreaButton.setBorderPainted(false);    
 
-    JButton yourAreaButton = new JButton(brIcon);
-    card2.add(yourAreaButton);
-    yourAreaButton.setBounds(250,500,140,140);
-    yourAreaButton.addMouseListener(this);
-    yourAreaButton.setActionCommand("222");
-    yourAreaButton.setContentAreaFilled(false);
-    yourAreaButton.setBorderPainted(false); 
+    // yourAreaButton = new JButton(brIcon);
+    // scene3.add(yourAreaButton);
+    // yourAreaButton.setBounds(250,500,140,140);
+    // yourAreaButton.addActionListener(this);
+    // yourAreaButton.setActionCommand("0");
+    // yourAreaButton.setContentAreaFilled(false);
+    // yourAreaButton.setBorderPainted(false); 
 
-    guideArray[0][1].setIcon(redIcon);
-    guideArray[0][2].setIcon(redIcon);
-    guideArray[0][3].setIcon(redIcon);
-    guideArray[0][4].setIcon(redIcon);
+    boardArray[0][1].setIcon(redIcon);
+    boardArray[0][2].setIcon(redIcon);
+    boardArray[0][3].setIcon(redIcon);
+    boardArray[0][4].setIcon(redIcon);
 
-    guideArray[4][1].setIcon(blueIcon);
-    guideArray[4][2].setIcon(blueIcon);
-    guideArray[4][3].setIcon(blueIcon);
-    guideArray[4][4].setIcon(blueIcon);
+    boardArray[4][1].setIcon(blueIcon);
+    boardArray[4][2].setIcon(blueIcon);
+    boardArray[4][3].setIcon(blueIcon);
+    boardArray[4][4].setIcon(blueIcon);
 
-    /* カード3 */
-    card3 = new JPanel();
-    card3.add(new JCheckBox("checkbox1"));
-    card3.add(new JCheckBox("checkbox2"));
-
-    cardPanel = new JPanel();
+    scenePanel = new JPanel();
     layout = new CardLayout();
-    cardPanel.setLayout(layout);
+    scenePanel.setLayout(layout);
 
-    cardPanel.add(card1, "button");
-    cardPanel.add(card2, "label");
-    cardPanel.add(card3, "checkbox");
+    scenePanel.add(scene1, "title");
+    scenePanel.add(scene2, "charactorSelect");
+    scenePanel.add(scene3, "Play");
 
-    /* カード移動用ボタン */
-    JButton firstButton = new JButton("First");
-    firstButton.addActionListener(this);
-    firstButton.setActionCommand("First");
+    // /* カード移動用ボタン */
+    // JButton firstButton = new JButton("First");
+    // firstButton.addActionListener(this);
+    // firstButton.setActionCommand("First");
 
-    JButton prevButton = new JButton("Prev");
-    prevButton.addActionListener(this);
-    prevButton.setActionCommand("Prev");
+    // JButton prevButton = new JButton("Prev");
+    // prevButton.addActionListener(this);
+    // prevButton.setActionCommand("Prev");
 
-    JButton nextButton = new JButton("Next");
-    nextButton.addActionListener(this);
-    nextButton.setActionCommand("Next");
+    // JButton nextButton = new JButton("Next");
+    // nextButton.addActionListener(this);
+    // nextButton.setActionCommand("Next");
 
-    JButton lastButton = new JButton("Last");
-    lastButton.addActionListener(this);
-    lastButton.setActionCommand("Last");
+    // JButton lastButton = new JButton("Last");
+    // lastButton.addActionListener(this);
+    // lastButton.setActionCommand("Last");
 
-    JPanel btnPanel = new JPanel();
-    btnPanel.add(firstButton);
-    btnPanel.add(prevButton);
-    btnPanel.add(nextButton);
-    btnPanel.add(lastButton);
+    // JPanel btnPanel = new JPanel();
+    // btnPanel.add(firstButton);
+    // btnPanel.add(prevButton);
+    // btnPanel.add(nextButton);
+    // btnPanel.add(lastButton);
 
-    getContentPane().add(cardPanel, BorderLayout.CENTER);
-    getContentPane().add(btnPanel, BorderLayout.PAGE_END);
+    getContentPane().add(scenePanel, BorderLayout.CENTER);
+    //getContentPane().add(btnPanel, BorderLayout.PAGE_END);
 
 
 
@@ -218,29 +255,32 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 		mrt.start();// スレッドを動かす（Runが動く）
 	}
 		
-	// メッセージ受信のためのスレッド
+	// 内部クラス１：メッセージ受信のためのスレッド
 	public class MesgRecvThread extends Thread {
 		Socket socket;
 		String myName;
 		
+    // 内部クラス１のコンストラクタ
 		public MesgRecvThread(Socket s, String n){
 			socket = s;
 			myName = n;
 		}
 		
-	  // 通信状況を監視し，受信データによって動作する
+	  // 内部クラス１のメソッド：通信状況を監視し，受信データによって動作する
 		public void run() {
 			try{
 				InputStreamReader sisr = new InputStreamReader(socket.getInputStream());
 				BufferedReader br = new BufferedReader(sisr);
 				out = new PrintWriter(socket.getOutputStream(), true);
 				out.println(myName);//接続の最初に名前を送る
+        System.out.println(myName);
         String myNumberStr = br.readLine();
         int myNumberInt = Integer.parseInt(myNumberStr);
 
         if(myNumberInt % 2 != 0){
           myColor=0;// player1:red
           myNumber=111;
+          winFlag=false;
           myTurn=1;// 先行
           myIcon=redIcon;
           mydoubleIcon=rbIcon;
@@ -256,6 +296,7 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
         }else{
           myColor=1;// player2:blue
           myNumber=222;
+          winFlag=false;
           myTurn=0;// 後攻
           myIcon=blueIcon;
           mydoubleIcon=brIcon;
@@ -308,83 +349,120 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
             //   }
             //   System.out.println("リセット成功");
             // }
-         
-            if(cmd.equals("SELECT")){
-              String theBName = inputTokens[1];
-              int theBnum = Integer.parseInt(theBName);
-              int x = theBnum % 5;
-              int y = theBnum / 5;
-              int theColor = Integer.parseInt(inputTokens[2]);
-              Icon theIcon = guideArray[y][x].getIcon();
+              if(cmd.equals("SELECT")){
+                String theBName = inputTokens[1];
+                int theBnum = Integer.parseInt(theBName);
+                int x = theBnum % 5;
+                int y = theBnum / 5;
+                int theColor = Integer.parseInt(inputTokens[2]);
+                Icon theIcon = boardArray[y][x].getIcon();
 
-              if(theColor == myColor){// もしクリックしたアイコンの種類がじぶんだったら
-                clearSelectedIcon(theColor);// 既存の選択部分とガイドを解除
-                if(theIcon == myIcon){// 次に、クリックしたアイコンがコマだったら
-                  guideArray[y][x].setIcon(s_myIcon);// そのクリックしたアイコンを選択状態のアイコンに変更
-                  showGuide(x, y, theColor);// ガイド表示         
-                }else if(theIcon == mydoubleIcon){
-                  guideArray[y][x].setIcon(s_mydoubleIcon);// そのクリックしたアイコンを選択状態のアイコンに変更
-                  showGuide(x, y, theColor);// ガイド表示
-                }else if(theIcon==s_myIcon){// 選択状態を解除する
-                  guideArray[y][x].setIcon(myIcon);
-                }else if(theIcon==s_mydoubleIcon){// 選択状態を解除する
-                  guideArray[y][x].setIcon(mydoubleIcon);
-                }
-              }else{// もしクリックしたアイコンの種類があいてだったら
-                clearSelectedIcon(theColor);// 既存の選択部分とガイドを解除
-                if(theIcon == yourIcon){
-                  guideArray[y][x].setIcon(s_yourIcon);
-                  showGuide(x, y, theColor);// ガイド表示   
-                }else if(theIcon == yourdoubleIcon){
-                  guideArray[y][x].setIcon(s_yourdoubleIcon);// 選択状態のアイコンに変更
-                  showGuide(x, y, theColor);// ガイド表示   
-                }else if(theIcon==s_yourIcon){// 選択状態を解除する
-                  guideArray[y][x].setIcon(yourIcon);
-                }else if(theIcon==s_yourdoubleIcon){
-                  guideArray[y][x].setIcon(yourdoubleIcon);
-                }              
-              }
-            }
-
-            if(cmd.equals("PLACE")){
-              String theBName = inputTokens[1];
-              int theBnum = Integer.parseInt(theBName);
-              int x = theBnum % 5;
-              int y = theBnum / 5;
-              int theColor = Integer.parseInt(inputTokens[2]);
-              Icon theIcon = guideArray[y][x].getIcon();
-
-              if(theColor==myColor){              
-                clearPlacedIcon(theColor);
-                if(theIcon==guideIcon){
-                  guideArray[y][x].setIcon(myIcon);
-                }else if(theIcon==g_yourIcon){
-                  guideArray[y][x].setIcon(mydoubleIcon);
-                }
-              }else{
-                clearPlacedIcon(theColor);
-                if(theIcon==guideIcon){
-                  guideArray[y][x].setIcon(yourIcon);
-                }else if(theIcon==g_myIcon){
-                  guideArray[y][x].setIcon(yourdoubleIcon);
+                if(theColor == myColor){// もしクリックしたアイコンの種類がじぶんだったら
+                  clearSelectedIcon(theColor);// 既存の選択部分とガイドを解除
+                  if(theIcon == myIcon){// 次に、クリックしたアイコンがコマだったら
+                    boardArray[y][x].setIcon(s_myIcon);// そのクリックしたアイコンを選択状態のアイコンに変更
+                    showGuide(x, y, theColor);// ガイド表示         
+                  }else if(theIcon == mydoubleIcon){
+                    boardArray[y][x].setIcon(s_mydoubleIcon);// そのクリックしたアイコンを選択状態のアイコンに変更
+                    showGuide(x, y, theColor);// ガイド表示
+                  }else if(theIcon==s_myIcon){// 選択状態を解除する
+                    boardArray[y][x].setIcon(myIcon);
+                  }else if(theIcon==s_mydoubleIcon){// 選択状態を解除する
+                    boardArray[y][x].setIcon(mydoubleIcon);
+                  }
+                }else{// もしクリックしたアイコンの種類があいてだったら
+                  clearSelectedIcon(theColor);// 既存の選択部分とガイドを解除
+                  if(theIcon == yourIcon){
+                    boardArray[y][x].setIcon(s_yourIcon);
+                    showGuide(x, y, theColor);// ガイド表示   
+                  }else if(theIcon == yourdoubleIcon){
+                    boardArray[y][x].setIcon(s_yourdoubleIcon);// 選択状態のアイコンに変更
+                    showGuide(x, y, theColor);// ガイド表示   
+                  }else if(theIcon==s_yourIcon){// 選択状態を解除する
+                    boardArray[y][x].setIcon(yourIcon);
+                  }else if(theIcon==s_yourdoubleIcon){
+                    boardArray[y][x].setIcon(yourdoubleIcon);
+                  }              
                 }
               }
 
-            }
+              if(cmd.equals("PLACE")){
+                myTurn = 1 - myTurn;
+                System.out.println("myTurn="+myTurn);
+                String theBName = inputTokens[1];
+                int theBnum = Integer.parseInt(theBName);
+                int x = theBnum % 5;
+                int y = theBnum / 5;
+                int theColor = Integer.parseInt(inputTokens[2]);
+                Icon theIcon = boardArray[y][x].getIcon();
 
-            // // FLIP機能
-            // if(cmd.equals("FLIP")){
-            //   String theBName = inputTokens[1];//ボタンの名前（番号）の取得
-            //   int theBnum = Integer.parseInt(theBName);//ボタンの名前を数値に変換する
-            //   int i = theBnum / 8;
-            //   int j = theBnum % 8;
-            //   int theColor = Integer.parseInt(inputTokens[2]);//数値に変換する
-            //   if(theColor==myColor){
-            //     buttonArray[i][j].setIcon(myIcon);//blackIconに設定する
-            //   }else{
-            //     buttonArray[i][j].setIcon(yourIcon);
-            //   }
-            // }
+                if(theColor==myColor){              
+                  clearPlacedIcon(theColor);
+                  if(theIcon==guideIcon){
+                    boardArray[y][x].setIcon(myIcon);
+                  }else if(theIcon==g_yourIcon){
+                    boardArray[y][x].setIcon(mydoubleIcon);
+                  }
+                }else{
+                  clearPlacedIcon(theColor);
+                  if(theIcon==guideIcon){
+                    boardArray[y][x].setIcon(yourIcon);
+                  }else if(theIcon==g_myIcon){
+                    boardArray[y][x].setIcon(yourdoubleIcon);
+                  }
+                }
+                
+                if(myColor==0){
+                  int count = 0;
+                  for(int i=0; i<5; i++){
+                    if(boardArray[4][i].getIcon()==myIcon||boardArray[4][i].getIcon()==mydoubleIcon){
+                        count++;
+                    }
+                  }
+                  if(count>0){
+                    winFlag=true;
+                    System.out.println("winFlag0="+winFlag);
+                  }else{
+                    winFlag=false;
+                    System.out.println("winFlag0="+winFlag);
+                  }
+                }else if(myColor==1){
+                  int count = 0;
+                  for(int i=0; i<5; i++){
+                    if(boardArray[0][i].getIcon()==myIcon||boardArray[0][i].getIcon()==mydoubleIcon){
+                        count++;
+                    }
+                  }
+                  if(count>0){
+                    winFlag=true;
+                    System.out.println("winFlag1="+winFlag);
+                  }else{
+                    winFlag=false;
+                    System.out.println("winFlag1="+winFlag);
+                  }
+                }
+              }
+
+              if(cmd.equals("WIN")){
+                  String theBName = inputTokens[1];
+                  int theBnum = Integer.parseInt(theBName);
+                  int theColor = Integer.parseInt(inputTokens[2]);
+                  if(theBnum!=theColor){
+                    if(theBnum!=myColor){
+                      System.out.println("勝ち");
+                      winButtonArray[theBnum].setIcon(myIcon);
+                    }else{
+                      System.out.println("負け");
+                      winButtonArray[theBnum].setIcon(yourIcon);
+                    }
+                  }else{
+                    System.out.println("置くことが出来ません");
+                  }
+
+                  
+                  clearSelectedIcon(theColor);
+
+              }
 					}else{
 						break;
 					}
@@ -396,6 +474,7 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 		}
 	}
 
+  // メソッド
 	public static void main(String[] args) throws InterruptedException{
 		MyClient net = new MyClient();
     // TitleView ti = new TitleView();
@@ -404,42 +483,55 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     // net.change(ti);
 	}
 
-  
-  // //画面切り替え用メソッド
-	// public void change(JPanel panel) {
-	// 	//ContentPaneにはめ込まれたパネルを削除
-    
-	// 	getContentPane().removeAll();
-	// 	getContentPane().add(panel);//パネルの追加
-	// 	validate();//更新
-	// 	repaint();//再描画
-	// }
-
-  // class TitleView extends JPanel{
-  //   // ウィンドウを作成する
-	// 	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);// ウィンドウを閉じるときに，正しく閉じるように設定する
-	// 	setTitle("MyClient");// ウィンドウのタイトルを設定する
-	// 	setSize(1200, 850);// ウィンドウのサイズを設定する
-
-  
-	// 	// c = getContentPane();// フレームのペインを取得する
-  //   c = new JLayeredPane(); 
-  //   c.setBackground(Color.RED);
-  // }
-
+  // メソッド
   public void actionPerformed(ActionEvent e){
     String cmd = e.getActionCommand();
+    System.out.println("a-cmd"+cmd);
+    System.out.println("myColor="+myColor);
+    System.out.println(cmd.equals(Integer.toString(myColor)));
 
     if (cmd.equals("First")){
-      layout.first(cardPanel);
+      layout.first(scenePanel);
     }else if (cmd.equals("Last")){
-      layout.last(cardPanel);
-    }else if (cmd.equals("Next")){
-      layout.next(cardPanel);
+      layout.last(scenePanel);
+    }else if (cmd.equals("Next") || cmd.equals("Start")){
+      layout.next(scenePanel);
     }else if (cmd.equals("Prev")){
-      layout.previous(cardPanel);
+      layout.previous(scenePanel);
+    }
+    if (cmd.equals("character1")){
+      JLabel chara1 = new JLabel(character1Img);
+      scene3.add(chara1);
+      chara1.setBounds(50, 50,300,300);
+      scene3.setLayer(chara1,1000);
+      layout.next(scenePanel);
+    }else if(cmd.equals("character2")){
+      JLabel chara2 = new JLabel(character2Img);
+      scene3.add(chara2);
+      chara2.setBounds(50, 50,300,300);
+      scene3.setLayer(chara2,1000);
+      layout.next(scenePanel);
+    }else if(cmd.equals("character3")){
+      JLabel chara3 = new JLabel(character3Img);
+      scene3.add(chara3);
+      chara3.setBounds(50, 50,300,300);
+      scene3.setLayer(chara3,1000);
+      layout.next(scenePanel);
+    }
+    if(myTurn==1){
+      if(winFlag){
+        if (cmd.equals("0")||cmd.equals("1")){
+          JButton theButton = (JButton)e.getSource();
+          String theNumber = theButton.getActionCommand();
+          String msg = "WIN"+" "+theNumber+" "+myColor;
+          out.println(msg);
+          out.flush();
+        }
+      }
     }
   }
+
+  // メソッド
 	public void mouseClicked(MouseEvent e) {
     System.out.println("クリック");
     JButton theButton = (JButton)e.getComponent();
@@ -456,18 +548,19 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     System.out.println("x="+x);
     System.out.println("y="+y);
 
-    // コマの選択状態を示す
-    if(theIcon == myIcon || theIcon == s_myIcon || theIcon == mydoubleIcon || theIcon == s_mydoubleIcon){
+    if(myTurn==1){
+      // コマの選択状態を示す
+      if(theIcon == myIcon || theIcon == s_myIcon || theIcon == mydoubleIcon || theIcon == s_mydoubleIcon){
         String msg = "SELECT"+" "+theArrayIndex+" "+myColor;
         out.println(msg);
         out.flush();
-    }
-
-    // コマを置く
-    if(theIcon == guideIcon || theIcon == g_yourIcon){
+      }
+      // コマを置く
+      if(theIcon == guideIcon || theIcon == g_yourIcon){
         String msg = "PLACE"+" "+theArrayIndex+" "+myColor;
         out.println(msg);
         out.flush();
+      }
     }
 
     //label.setText("x:" + point.x + ",y:" + point.y);
@@ -507,7 +600,7 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 	}
 	
 	public void mouseEntered(MouseEvent e) {
-    System.out.println("ホバー");
+    // System.out.println("ホバー");
     JButton theButton = (JButton)e.getComponent();
     String theArrayIndex = theButton.getActionCommand();
     Icon theIcon = theButton.getIcon();
@@ -516,18 +609,18 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     int x = temp % 5;
     int y = temp / 5;
 
-    System.out.println("x="+x);
-    System.out.println("y="+y);
+    // System.out.println("x="+x);
+    // System.out.println("y="+y);
 
     // if (theIcon == myIcon){
-    //   guideArray[y][x].setIcon(catIcon);
+    //   boardArray[y][x].setIcon(catIcon);
     // }
-    card2.setLayer(guideArray[y][x],1000);
+    scene3.setLayer(boardArray[y][x],1000);
 
 	}
 	
 	public void mouseExited(MouseEvent e) {
-    System.out.println("ホバーおわり");
+    // System.out.println("ホバーおわり");
     JButton theButton = (JButton)e.getComponent();
     String theArrayIndex = theButton.getActionCommand();
     Icon theIcon = theButton.getIcon();
@@ -536,11 +629,11 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     int x = temp % 5;
     int y = temp / 5;
 
-    System.out.println("x="+x);
-    System.out.println("y="+y);
+    // System.out.println("x="+x);
+    // System.out.println("y="+y);
 
-    //guideArray[y][x].setIcon(orangeIcon);
-    card2.setLayer(guideArray[y][x],y*5+x+1);
+    //boardArray[y][x].setIcon(orangeIcon);
+    scene3.setLayer(boardArray[y][x],y*5+x+1);
 	}
 	
 	public void mousePressed(MouseEvent e) {
@@ -571,16 +664,16 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
           continue;// trueなら以降の処理をスキップ
         }
 
-        Icon theIcon2 = guideArray[posY][posX].getIcon();
+        Icon theIcon2 = boardArray[posY][posX].getIcon();
         if(theIcon2 == orangeIcon){
-          guideArray[posY][posX].setIcon(guideIcon);
+          boardArray[posY][posX].setIcon(guideIcon);
         }else if(theColor==myColor){
           if(theIcon2 == yourIcon){
-            guideArray[posY][posX].setIcon(g_yourIcon);
+            boardArray[posY][posX].setIcon(g_yourIcon);
           }
         }else if(theColor!=myColor){
           if(theIcon2 == myIcon){
-            guideArray[posY][posX].setIcon(g_myIcon);
+            boardArray[posY][posX].setIcon(g_myIcon);
           }
         }
       }
@@ -592,28 +685,28 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     if(theColor==myColor){
       for(int j=0;j<5;j++){// まず、他の選択部分があれば解除する
         for(int i=0; i<5; i++){
-          if(guideArray[j][i].getIcon() == s_myIcon){// 選択状態の自分のアイコンをもとに戻す
-            guideArray[j][i].setIcon(myIcon);
-          }else if(guideArray[j][i].getIcon() == guideIcon){// ガイド表示部分を普通のマスに戻す
-            guideArray[j][i].setIcon(orangeIcon);
-          }else if(guideArray[j][i].getIcon() == g_yourIcon){// ガイド状態の相手のアイコンをもとに戻す
-            guideArray[j][i].setIcon(yourIcon);
-          }else if(guideArray[j][i].getIcon() == s_mydoubleIcon){
-            guideArray[j][i].setIcon(mydoubleIcon);
+          if(boardArray[j][i].getIcon() == s_myIcon){// 選択状態の自分のアイコンをもとに戻す
+            boardArray[j][i].setIcon(myIcon);
+          }else if(boardArray[j][i].getIcon() == guideIcon){// ガイド表示部分を普通のマスに戻す
+            boardArray[j][i].setIcon(orangeIcon);
+          }else if(boardArray[j][i].getIcon() == g_yourIcon){// ガイド状態の相手のアイコンをもとに戻す
+            boardArray[j][i].setIcon(yourIcon);
+          }else if(boardArray[j][i].getIcon() == s_mydoubleIcon){
+            boardArray[j][i].setIcon(mydoubleIcon);
           }
         }
       }
     }else{
       for(int j=0;j<5;j++){// まず、他の選択部分があれば解除する
         for(int i=0; i<5; i++){
-          if(guideArray[j][i].getIcon() == s_yourIcon){// 選択状態の自分のアイコンをもとに戻す
-            guideArray[j][i].setIcon(yourIcon);
-          }else if(guideArray[j][i].getIcon() == guideIcon){// ガイド表示部分を普通のマスに戻す
-            guideArray[j][i].setIcon(orangeIcon);
-          }else if(guideArray[j][i].getIcon() == g_myIcon){// ガイド状態の相手のアイコンをもとに戻す
-            guideArray[j][i].setIcon(myIcon);
-          }else if(guideArray[j][i].getIcon() == s_yourdoubleIcon){
-            guideArray[j][i].setIcon(yourdoubleIcon);
+          if(boardArray[j][i].getIcon() == s_yourIcon){// 選択状態の自分のアイコンをもとに戻す
+            boardArray[j][i].setIcon(yourIcon);
+          }else if(boardArray[j][i].getIcon() == guideIcon){// ガイド表示部分を普通のマスに戻す
+            boardArray[j][i].setIcon(orangeIcon);
+          }else if(boardArray[j][i].getIcon() == g_myIcon){// ガイド状態の相手のアイコンをもとに戻す
+            boardArray[j][i].setIcon(myIcon);
+          }else if(boardArray[j][i].getIcon() == s_yourdoubleIcon){
+            boardArray[j][i].setIcon(yourdoubleIcon);
           }
         }
       }
@@ -625,28 +718,28 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     if(theColor==myColor){
       for(int j=0;j<5;j++){// まず、他の選択部分があれば解除する
         for(int i=0; i<5; i++){
-          if(guideArray[j][i].getIcon() == s_myIcon){// 選択状態の自分のアイコンをもとに戻す
-            guideArray[j][i].setIcon(orangeIcon);
-          }else if(guideArray[j][i].getIcon() == guideIcon){// ガイド表示部分を普通のマスに戻す
-            guideArray[j][i].setIcon(orangeIcon);
-          }else if(guideArray[j][i].getIcon() == g_yourIcon){// ガイド表示部分を普通のマスに戻す
-            guideArray[j][i].setIcon(yourIcon);
-          }else if(guideArray[j][i].getIcon() == s_mydoubleIcon){
-            guideArray[j][i].setIcon(yourIcon);                      
+          if(boardArray[j][i].getIcon() == s_myIcon){// 選択状態の自分のアイコンをもとに戻す
+            boardArray[j][i].setIcon(orangeIcon);
+          }else if(boardArray[j][i].getIcon() == guideIcon){// ガイド表示部分を普通のマスに戻す
+            boardArray[j][i].setIcon(orangeIcon);
+          }else if(boardArray[j][i].getIcon() == g_yourIcon){// ガイド表示部分を普通のマスに戻す
+            boardArray[j][i].setIcon(yourIcon);
+          }else if(boardArray[j][i].getIcon() == s_mydoubleIcon){
+            boardArray[j][i].setIcon(yourIcon);                      
           }
         }
       }
     }else{
       for(int j=0;j<5;j++){// まず、他の選択部分があれば解除する
         for(int i=0; i<5; i++){
-          if(guideArray[j][i].getIcon()==s_yourIcon){// 選択状態の自分のアイコンをもとに戻す
-            guideArray[j][i].setIcon(orangeIcon);
-          }else if(guideArray[j][i].getIcon() == guideIcon){// ガイド表示部分を普通のマスに戻す
-            guideArray[j][i].setIcon(orangeIcon);
-          }else if(guideArray[j][i].getIcon() == g_myIcon){// ガイド表示部分を普通のマスに戻す
-            guideArray[j][i].setIcon(myIcon);
-          }else if(guideArray[j][i].getIcon() == s_yourdoubleIcon){
-            guideArray[j][i].setIcon(myIcon);                      
+          if(boardArray[j][i].getIcon()==s_yourIcon){// 選択状態の自分のアイコンをもとに戻す
+            boardArray[j][i].setIcon(orangeIcon);
+          }else if(boardArray[j][i].getIcon() == guideIcon){// ガイド表示部分を普通のマスに戻す
+            boardArray[j][i].setIcon(orangeIcon);
+          }else if(boardArray[j][i].getIcon() == g_myIcon){// ガイド表示部分を普通のマスに戻す
+            boardArray[j][i].setIcon(myIcon);
+          }else if(boardArray[j][i].getIcon() == s_yourdoubleIcon){
+            boardArray[j][i].setIcon(myIcon);                      
           }
         }
       }
@@ -835,7 +928,7 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
   //   return count;
   // }
   
-  // 音楽再生
+  // 内部クラス２：音楽再生
   public class SoundPlayer{
     private AudioFormat format = null;
     private DataLine.Info info = null;
