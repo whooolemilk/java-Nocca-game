@@ -21,8 +21,7 @@ import java.awt.BorderLayout;
 
 public class MyClient extends JFrame implements MouseListener,MouseMotionListener, ActionListener {
   // フィールド宣言
-  private static JButton boardArray[][];
-  JButton winButtonArray[];// ボード5*5
+  private static JButton boardArray[][], winButtonArray[];// ボード5*5
   private JButton startButton, howToPlayButton, myAreaButton, yourAreaButton;
   private int myColor, myNumber, myTurn;
   private ImageIcon myIcon, yourIcon, character1Img, character2Img, character3Img;
@@ -34,11 +33,11 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
   private JPanel scene1, scene2;
   private boolean mySelect, winFlag;
   private static ImageIcon redIcon, blueIcon, orangeIcon;
-  private ImageIcon catIcon, rbIcon, brIcon;
+  private static ImageIcon catIcon, rbIcon, brIcon;
   private ImageIcon s_rbIcon, s_brIcon, s_redIcon, s_blueIcon, s_orangeIcon, s_catIcon;
   private ImageIcon bgImg, guideIcon;
   private ImageIcon g_redIcon, g_blueIcon;
-	PrintWriter out;
+	static PrintWriter out;
   SoundPlayer theSoundPlayer2;
   
   static JPanel scenePanel;
@@ -203,6 +202,7 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     for(int i=0; i<5; i++){
       boardArray[4][i].setIcon(blueIcon);
     }
+    boardArray[4][3].setIcon(redIcon);
 
     scenePanel = new JPanel();
     layout = new CardLayout();
@@ -458,11 +458,17 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
                     }
                   }else{
                     System.out.println("置くことが出来ません");
-                  }
-
-                  
+                  }                  
                   clearSelectedIcon(theColor);
+                  popUp();
+              }
 
+              if(cmd.equals("END")){
+                resetBoard();
+              }
+              if(cmd.equals("REPLAY")){
+                resetBoard();
+                System.out.println(myTurn);
               }
 					}else{
 						break;
@@ -530,12 +536,15 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
           String msg = "WIN"+" "+theNumber+" "+myColor;
           out.println(msg);
           out.flush();
-          WinDialogWindow dlg = new WinDialogWindow(this);
-          dlg.add(new JButton());
-          setVisible(true);
         }
       }
     }
+  }
+
+  public void popUp(){
+    WinDialogWindow dlg = new WinDialogWindow(this);
+    dlg.add(new JButton());
+    setVisible(true);
   }
 
   // メソッド
@@ -721,13 +730,13 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
   }
 
   public static void resetBoard(){
-    boardArray = new JButton[5][5];
 		for(int j=0;j<5;j++){
       for(int i=0; i<5; i++){
         boardArray[j][i].setIcon(orangeIcon);
       }
     }
     setUser();
+    setWinArea();
   }
 
   public static void setUser(){
@@ -736,6 +745,12 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     }
     for(int i=0; i<5; i++){
       boardArray[4][i].setIcon(blueIcon);
+    }
+  }
+
+  public static void setWinArea(){
+    for(int i=0; i<2; i++){
+      winButtonArray[i].setIcon(rbIcon);
     }
   }
   
@@ -809,7 +824,7 @@ class WinDialogWindow extends JDialog implements ActionListener{
 
 		    Container c = this.getContentPane();	//フレームのペインを取得する
         c.setLayout(null);		//自動レイアウトの設定を行わない
-        c.setBackground(Color.green);
+        c.setBackground(Color.WHITE);
 
         setTitle("You Win!");//タイトルの設定
         setSize(800, 500);//大きさの設定
@@ -838,8 +853,14 @@ class WinDialogWindow extends JDialog implements ActionListener{
       if (cmd.equals("REPLAY")){
         //layout.first(scenePanel);
         this.dispose();//Dialogを廃棄する
-        MyClient.resetBoard();
+        String msg = "REPLAY";
+        MyClient.out.println(msg);
+        MyClient.out.flush();
+        //MyClient.resetBoard();
       }else if (cmd.equals("END")){
+        String msg = "END";
+        MyClient.out.println(msg);
+        MyClient.out.flush();
         MyClient.layout.first(MyClient.scenePanel);
         this.dispose();//Dialogを廃棄する
       }
