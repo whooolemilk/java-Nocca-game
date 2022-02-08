@@ -12,3 +12,10 @@ http://web.wakayama-u.ac.jp/~yoshino/netprogbbs2004/
 
 - JavaLog URL（進捗報告）
 https://web.wakayama-u.ac.jp/~yoshino/javalog2021/
+
+- 最終課題の動画について
+2月10日(木)13:10～発表会
+前で発表、試験の代わり
+２分程度
+ムービー・承諾書締め切り発表の前日
+わかりやすく、推しの部分、デザインのコンセプト、みせたい機能

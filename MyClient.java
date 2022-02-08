@@ -1,6 +1,8 @@
 import java.net.*;
 import java.io.*;
 import javax.swing.*;
+import java.awt.Color;
+
 import java.lang.*;
 import java.awt.*;
 import java.awt.image.*;
@@ -22,24 +24,44 @@ import java.awt.BorderLayout;
 public class MyClient extends JFrame implements MouseListener,MouseMotionListener, ActionListener {
   // フィールド宣言
   private static JButton boardArray[][], winButtonArray[];// ボード5*5
-  private JButton startButton, howToPlayButton, myAreaButton, yourAreaButton;
-  private int myColor, myNumber, myTurn;
-  private ImageIcon myIcon, yourIcon, character1Img, character2Img, character3Img;
+  private JButton startButton;
+  private int myColor, myNumber, turnNum;
+  private ImageIcon myIcon, yourIcon, character1Img, character2Img, character3Img, winIcon;
   private ImageIcon mydoubleIcon, yourdoubleIcon;
   private ImageIcon s_myIcon, s_yourIcon, s_doubleIcon, s_mydoubleIcon, s_yourdoubleIcon; // 選択状態アイコン
-  private ImageIcon g_myIcon, g_yourIcon;
+  private ImageIcon g_myIcon, g_yourIcon, ubutton, kbutton, nbutton, g_masuIcon;
   private JLayeredPane c, scene3;
-  private JLabel bg;
+  private JLabel bg, title, select, turnPanel, resultPanel;
   private JPanel scene1, scene2;
-  private boolean mySelect, winFlag;
-  private static ImageIcon redIcon, blueIcon, orangeIcon;
-  private static ImageIcon catIcon, rbIcon, brIcon;
-  private ImageIcon s_rbIcon, s_brIcon, s_redIcon, s_blueIcon, s_orangeIcon, s_catIcon;
-  private ImageIcon bgImg, guideIcon;
-  private ImageIcon g_redIcon, g_blueIcon;
+  private boolean winFlag, resultFlag;
+  private static ImageIcon rIcon, blueIcon;
+  private static ImageIcon rbIcon, g_mymasuIcon,g_yourmasuIcon;
+  private ImageIcon bgImg, titleImg, selectImg, returnIcon;
 	static PrintWriter out;
+  SoundPlayer theSoundPlayer1;
   SoundPlayer theSoundPlayer2;
-  
+
+  private static ImageIcon masuIcon;
+  private ImageIcon n_rabitIcon, n_catIcon, n_bearIcon, rabitIcon2, catIcon2, bearIcon2;
+  private ImageIcon n_rbIcon, n_rcIcon, n_brIcon, n_bcIcon, n_crIcon, n_cbIcon;
+  private ImageIcon s_rabitIcon, s_bearIcon, s_catIcon;
+  private ImageIcon s_rbIcon,s_rcIcon,s_brIcon,s_bcIcon,s_crIcon,s_cbIcon;
+  private ImageIcon g_r_masuIcon, g_b_masuIcon,g_c_masuIcon;
+  private ImageIcon g_r_bearIcon,g_r_catIcon,g_b_rabitIcon,g_b_catIcon,g_c_rabitIcon,g_c_bearIcon;  
+  private ImageIcon r_goalIcon, b_goalIcon, c_goalIcon;
+  private ImageIcon r_myturn, b_myturn, c_myturn;
+  private ImageIcon r_yourturn, b_yourturn, c_yourturn;
+  private ImageIcon myTurn, yourTurn, myWin, myLose, myRetry;
+  private ImageIcon myGoalIcon, yourGoalIcon;
+  private ImageIcon r_win, b_win, c_win;
+  private ImageIcon r_lose, b_lose, c_lose;
+  private static ImageIcon r_retry, b_retry, c_retry, titleBack;
+  private JButton retryButton, titleBackButton;
+
+  private int setCount = 0;// 0：うさぎ、１：くま、２：ねこ
+
+
+
   static JPanel scenePanel;
   static CardLayout layout;
 
@@ -60,74 +82,133 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);// ウィンドウを閉じるときに，正しく閉じるように設定する
 		setTitle("MyClient");// ウィンドウのタイトルを設定する
 		setSize(1024, 786);// ウィンドウのサイズを設定する
-  
-		//c = getContentPane();// フレームのペインを取得する
-    // c = new JLayeredPane();//layerフレームのペインを作成
-    // this.getContentPane().add(c);
 
-    // boardの設定
-    // bgImg = new ImageIcon("img/board1.png");
-    // bg = new JLabel(bgImg);
-    // c.add(bg);
-    // bg.setBounds(250, 50,700,700);
-    // c.setLayer(bg,1000);
-
+    theSoundPlayer1 = new SoundPlayer("honeylemon.wav");
+    theSoundPlayer1.SetLoop(true);//ＢＧＭとして再生を繰り返す
+    theSoundPlayer1.play();
 
 		// アイコンの設定
-    redIcon = new ImageIcon("img/zibun1.png");
-    blueIcon = new ImageIcon("img/aite1.png");
-    orangeIcon = new ImageIcon("img/masu1.png");
-    guideIcon = new ImageIcon("img/gaido1.png");
-    catIcon = new ImageIcon("img/cat21.png");
-    rbIcon = new ImageIcon("img/akaue1.png");
-    brIcon = new ImageIcon("img/aoue1.png");
-    bgImg = new ImageIcon("img/board1.png");
+    // ふつうのマスのアイコン
+    masuIcon = new ImageIcon("img/masu.png");
 
-    character1Img = new ImageIcon("img/character1.png");
-    character2Img = new ImageIcon("img/character2.png");
-    character3Img = new ImageIcon("img/character3.png");
+    // キャラクター＋ふつうのますのアイコン
+    n_rabitIcon = new ImageIcon("img/normal-rabit.png");
+    n_bearIcon = new ImageIcon("img/normal-bear.png");
+    n_catIcon = new ImageIcon("img/normal-cat.png");
 
+    // キャラクター２＋ふつうのますのアイコン
+    n_rbIcon = new ImageIcon("img/rabitbear.png");
+    n_rcIcon = new ImageIcon("img/rabitcat.png");
+    n_brIcon = new ImageIcon("img/bearrabit.png");
+    n_bcIcon = new ImageIcon("img/bearcat.png");
+    n_crIcon = new ImageIcon("img/catrabit.png");
+    n_cbIcon = new ImageIcon("img/catbear.png");
 
-    s_redIcon = new ImageIcon("img/s-zibun1.png");
-    s_blueIcon = new ImageIcon("img/s-aite1.png");
-    s_orangeIcon = new ImageIcon("img/s-masu1.png");
-    s_catIcon = new ImageIcon("img/s-cat21.png");    
-    s_rbIcon = new ImageIcon("img/s-akaue1.png");
-    s_brIcon = new ImageIcon("img/s-aoue1.png");
+    // 選択状態の１キャラクターのみアイコン
+    s_rabitIcon = new ImageIcon("img/s-rabit.png");
+    s_bearIcon = new ImageIcon("img/s-bear.png");
+    s_catIcon = new ImageIcon("img/s-cat.png");
 
-    g_redIcon = new ImageIcon("img/g-zibun1.png");
-    g_blueIcon = new ImageIcon("img/g-aite1.png");
+    // 選択状態の２キャラクターアイコン
+    s_rbIcon = new ImageIcon("img/s-rabitbear.png");
+    s_rcIcon = new ImageIcon("img/s-rabitcat.png");
+    s_brIcon = new ImageIcon("img/s-bearrabit.png");
+    s_bcIcon = new ImageIcon("img/s-bearcat.png");
+    s_crIcon = new ImageIcon("img/s-catrabit.png");
+    s_cbIcon = new ImageIcon("img/s-catbear.png");
 
-		// c.setLayout(null);// 自動レイアウトの設定を行わない 
+    // ガイド状態のマス
+    g_r_masuIcon = new ImageIcon("img/g-r-masu.png");
+    g_b_masuIcon = new ImageIcon("img/g-b-masu.png");
+    g_c_masuIcon = new ImageIcon("img/g-c-masu.png");
+
+    // ガイド状態のキャラクターます
+    g_r_bearIcon = new ImageIcon("img/g-r-bear.png");
+    g_r_catIcon = new ImageIcon("img/g-r-cat.png");
+    g_b_rabitIcon = new ImageIcon("img/g-b-rabit.png");
+    g_b_catIcon = new ImageIcon("img/g-b-cat.png");
+    g_c_rabitIcon = new ImageIcon("img/g-c-rabit.png");
+    g_c_bearIcon = new ImageIcon("img/g-c-bear.png");
+
+    // ゴールアイコン
+    r_goalIcon = new ImageIcon("img/r-win.png");
+    b_goalIcon = new ImageIcon("img/b-win.png");
+    c_goalIcon = new ImageIcon("img/c-win.png");
+
+    // ゲームステージアイコン
+    bgImg = new ImageIcon("img/stage.png");
+
+    // タイトル画面
+    titleImg = new ImageIcon("img/title2.png");
+
+    // キャラクターセレクトボタン
+    selectImg = new ImageIcon("img/select2.png");
+    returnIcon = new ImageIcon("img/returnbutton21.png");
+    ubutton = new ImageIcon("img/uselect1.png");
+    kbutton = new ImageIcon("img/kselect1.png");
+    nbutton = new ImageIcon("img/nselect1.png");
+
+    // 全身アイコン
+    rabitIcon2 = new ImageIcon("img/rabit1.png");
+    catIcon2 = new ImageIcon("img/cat1.png");
+    bearIcon2 = new ImageIcon("img/bear1.png");
+
+    // ターン表示
+    r_myturn = new ImageIcon("img/r-myturn.png");
+    r_yourturn = new ImageIcon("img/r-yourturn.png");
+    b_myturn = new ImageIcon("img/b-myturn.png");
+    b_yourturn = new ImageIcon("img/b-yourturn.png");
+    c_myturn = new ImageIcon("img/c-myturn.png");
+    c_yourturn = new ImageIcon("img/c-yourturn.png");
+
+    // リザルト画面
+    r_win = new ImageIcon("img/r-resultwin.png");
+    b_win = new ImageIcon("img/b-resultwin.png");
+    c_win = new ImageIcon("img/c-resultwin.png");
+    r_lose = new ImageIcon("img/r-resultlose.png");
+    b_lose = new ImageIcon("img/b-resultlose.png");
+    c_lose = new ImageIcon("img/c-resultlose.png");
+    r_retry = new ImageIcon("img/r-retry.png");
+    b_retry = new ImageIcon("img/b-retry.png");
+    c_retry = new ImageIcon("img/c-retry.png");
+    titleBack = new ImageIcon("img/titleback.png");
 
     /* -----------------------scene1------------------------- */
     scene1 = new JPanel();
-    JLabel title = new JLabel("タイトル");
-    scene1.add(title);
     scene1.setLayout(null);
-    startButton = new JButton("はじめる");
-    howToPlayButton = new JButton("あそびかた");
+
+    title = new JLabel(titleImg);
+    scene1.add(title);
+    title.setBounds(0, 0,1024,786);
+    
+    startButton = new JButton();
     scene1.add(startButton);
-    scene1.add(howToPlayButton);
     startButton.addActionListener(this);
     startButton.setActionCommand("Start");
-
-    title.setBounds(362,150, 300, 100);
-    title.setFont(new Font(Font.DIALOG_INPUT, Font.BOLD, 70));
-    startButton.setBounds(362, 420, 300, 100);
-    howToPlayButton.setBounds(362, 550, 300, 100);
+    startButton.setBounds(0, 0, 1024, 786);
+    startButton.setContentAreaFilled(false);
+    startButton.setBorderPainted(false);
 
     /* -----------------------scene2------------------------- */
     scene2 = new JPanel();
     scene2.setLayout(null);
-    JButton c1Button = new JButton(character1Img);
-    JButton c2Button = new JButton(character2Img);
-    JButton c3Button = new JButton(character3Img);
+    JButton returnButton = new JButton(returnIcon);
+    JButton c1Button = new JButton(ubutton);
+    JButton c2Button = new JButton(kbutton);
+    JButton c3Button = new JButton(nbutton);
     scene2.add(c1Button);
     scene2.add(c2Button);
     scene2.add(c3Button);
+    scene2.add(returnButton);
+
+    select = new JLabel(selectImg);
+    scene2.add(select);
+    select.setBounds(0, 0,1024,786);
+
 
     // boardArray[j][i].setBounds(x,y,xs,ys);
+    returnButton.addActionListener(this);
+    returnButton.setActionCommand("RETURN");
     c1Button.addActionListener(this);
     c1Button.setActionCommand("character1");
     c2Button.addActionListener(this);
@@ -135,74 +216,63 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     c3Button.addActionListener(this);
     c3Button.setActionCommand("character3");
 
-    c1Button.setBounds(22, 200, 300, 300);
-    c2Button.setBounds(362, 200, 300, 300);
-    c3Button.setBounds(702, 200, 300, 300);
+    returnButton.setBounds(30, 50, 80, 80);
+    c1Button.setBounds(85 , 600, 250, 60);
+    c2Button.setBounds(385, 600, 250, 60);
+    c3Button.setBounds(684, 600, 250, 60);
 
-
+    returnButton.setContentAreaFilled(false);
+    returnButton.setBorderPainted(false);
+    c1Button.setContentAreaFilled(false);
+    c1Button.setBorderPainted(false);
+    c2Button.setContentAreaFilled(false);
+    c2Button.setBorderPainted(false);
+    c3Button.setContentAreaFilled(false);
+    c3Button.setBorderPainted(false);
 
     /* -----------------------scene3------------------------- */
     scene3 = new JLayeredPane();
-    scene3.add(new JLabel("label"));
-    scene3.add(new JTextField("", 10));
-    
     
     bg = new JLabel(bgImg);
     scene3.add(bg);
-    bg.setBounds(250, 50,700,700);
+    bg.setBounds(0, 0,1024, 786);
     scene3.setLayer(bg,0);
 
     // ガイドの生成ver2
 		boardArray = new JButton[5][5];
 		for(int j=0;j<5;j++){
       for(int i=0; i<5; i++){
-        boardArray[j][i] = new JButton(orangeIcon);
+        boardArray[j][i] = new JButton(masuIcon);
         scene3.add(boardArray[j][i]);
-        boardArray[j][i].setBounds(i*70+530-70*j,j*70+5+70*i,140,140);
+        boardArray[j][i].setBounds(i*70+430-70*j,j*70+5+70*i,140,140);
         boardArray[j][i].addMouseListener(this);
-        scene3.setLayer(boardArray[j][i], j*5+i+1);
+        scene3.setLayer(boardArray[j][i], j*5+i+4);
         boardArray[j][i].setActionCommand(Integer.toString(j*5+i));
         boardArray[j][i].setContentAreaFilled(false);
         boardArray[j][i].setBorderPainted(false);
       }
 		}
 
+    //boardArray[3][2].setIcon(n_rabitIcon);
+
+    turnPanel = new JLabel();
+    turnPanel.setBounds(20, 20, 350, 100);
+    scene3.add(turnPanel);
+    scene3.setLayer(turnPanel, 32);
+
+    // 上のほうが0で、下のほうが1
     winButtonArray = new JButton[2];
     for(int i=0; i<2; i++){
       String j = Integer.toString(i);
-      winButtonArray[i] = new JButton(rbIcon);
+      winButtonArray[i] = new JButton();
       scene3.add(winButtonArray[i]);
-      winButtonArray[i].setBounds(740-490*i,90+410*i,140,140);
+      winButtonArray[i].setBounds(670-440*i,90+440*i,140,140);
       winButtonArray[i].addActionListener(this);
+      scene3.setLayer(winButtonArray[i], 30+i);
       winButtonArray[i].setActionCommand(j);
       winButtonArray[i].setContentAreaFilled(false);
       winButtonArray[i].setBorderPainted(false);
     }
-
-    setUser();
-    // myAreaButton = new JButton(rbIcon);
-    // scene3.add(myAreaButton);
-    // myAreaButton.setBounds(740,90,140,140);
-    // myAreaButton.addActionListener(this);
-    // myAreaButton.setActionCommand("1");
-    // myAreaButton.setContentAreaFilled(false);
-    // myAreaButton.setBorderPainted(false);    
-
-    // yourAreaButton = new JButton(brIcon);
-    // scene3.add(yourAreaButton);
-    // yourAreaButton.setBounds(250,500,140,140);
-    // yourAreaButton.addActionListener(this);
-    // yourAreaButton.setActionCommand("0");
-    // yourAreaButton.setContentAreaFilled(false);
-    // yourAreaButton.setBorderPainted(false); 
-
-    for(int i=0; i<5; i++){
-      boardArray[0][i].setIcon(redIcon);
-    }
-    for(int i=0; i<5; i++){
-      boardArray[4][i].setIcon(blueIcon);
-    }
-    boardArray[4][3].setIcon(redIcon);
 
     scenePanel = new JPanel();
     layout = new CardLayout();
@@ -211,29 +281,6 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     scenePanel.add(scene1, "title");
     scenePanel.add(scene2, "charactorSelect");
     scenePanel.add(scene3, "Play");
-
-    // /* カード移動用ボタン */
-    // JButton firstButton = new JButton("First");
-    // firstButton.addActionListener(this);
-    // firstButton.setActionCommand("First");
-
-    // JButton prevButton = new JButton("Prev");
-    // prevButton.addActionListener(this);
-    // prevButton.setActionCommand("Prev");
-
-    // JButton nextButton = new JButton("Next");
-    // nextButton.addActionListener(this);
-    // nextButton.setActionCommand("Next");
-
-    // JButton lastButton = new JButton("Last");
-    // lastButton.addActionListener(this);
-    // lastButton.setActionCommand("Last");
-
-    // JPanel btnPanel = new JPanel();
-    // btnPanel.add(firstButton);
-    // btnPanel.add(prevButton);
-    // btnPanel.add(nextButton);
-    // btnPanel.add(lastButton);
 
     getContentPane().add(scenePanel, BorderLayout.CENTER);
     //getContentPane().add(btnPanel, BorderLayout.PAGE_END);
@@ -282,34 +329,12 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
           myColor=0;// player1:red
           myNumber=111;
           winFlag=false;
-          myTurn=1;// 先行
-          myIcon=redIcon;
-          mydoubleIcon=rbIcon;
-          yourdoubleIcon=brIcon;
-          s_mydoubleIcon=s_rbIcon;
-          s_yourdoubleIcon=s_brIcon;        
-          s_doubleIcon=s_rbIcon;
-          s_myIcon=s_redIcon;
-          g_myIcon=g_redIcon;
-          yourIcon=blueIcon;
-          s_yourIcon=s_blueIcon;
-          g_yourIcon=g_blueIcon;
+          turnNum=1;// 先行
         }else{
           myColor=1;// player2:blue
           myNumber=222;
           winFlag=false;
-          myTurn=0;// 後攻
-          myIcon=blueIcon;
-          mydoubleIcon=brIcon;
-          yourdoubleIcon=rbIcon;
-          s_mydoubleIcon=s_brIcon;
-          s_yourdoubleIcon=s_rbIcon;
-          s_doubleIcon=s_brIcon;
-          s_myIcon=s_blueIcon;
-          g_myIcon=g_blueIcon;
-          yourIcon=redIcon;
-          s_yourIcon=s_redIcon;
-          g_yourIcon=g_redIcon;
+          turnNum=0;// 後攻
         }
 
 				while(true) {
@@ -318,159 +343,496 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 					if (inputLine != null) {
 						String[] inputTokens = inputLine.split(" ");
 						String cmd = inputTokens[0];
-
-            // // パス機能
-            // if(cmd.equals("PASS")){
-            //   myTurn = 1 - myTurn;
-            //   theLabel2.setText("<html>ボタンパス成功です！</html>");
-            //   System.out.println("ボタンパス成功");
-            //   if(myTurn==1){
-            //       theLabel2.setText("<html>あなたの番です！</html>");
-            //       System.out.println("あなたの番です");
-            //     }else{
-            //       theLabel2.setText("<html>相手の番です！</html>");
-            //       System.out.println("相手の番です");
-            //   }
-            // }
-            // // リセット機能
-            // if(cmd.equals("RESET")){
-            //   for(int j=0;j<8;j++){
-            //     for(int i=0; i<8; i++){
-            //     buttonArray[j][i].setIcon(boardIcon);
-            //     }
-            //   }
-            //   buttonArray[3][3].setIcon(whiteIcon);
-            //   buttonArray[3][4].setIcon(blackIcon);
-            //   buttonArray[4][3].setIcon(blackIcon);
-            //   buttonArray[4][4].setIcon(whiteIcon); 
-            //   if(myTurn==1){
-            //       System.out.println("あなたの番からはじまるよ");
-            //     }else{
-            //       System.out.println("相手の番からはじまるよ！");
-            //   }
-            //   System.out.println("リセット成功");
-            // }
-              if(cmd.equals("SELECT")){
-                String theBName = inputTokens[1];
-                int theBnum = Integer.parseInt(theBName);
-                int x = theBnum % 5;
-                int y = theBnum / 5;
-                int theColor = Integer.parseInt(inputTokens[2]);
-                Icon theIcon = boardArray[y][x].getIcon();
-
-                if(theColor == myColor){// もしクリックしたアイコンの種類がじぶんだったら
-                  clearSelectedIcon(theColor);// 既存の選択部分とガイドを解除
-                  if(theIcon == myIcon){// 次に、クリックしたアイコンがコマだったら
-                    boardArray[y][x].setIcon(s_myIcon);// そのクリックしたアイコンを選択状態のアイコンに変更
-                    showGuide(x, y, theColor);// ガイド表示         
-                  }else if(theIcon == mydoubleIcon){
-                    boardArray[y][x].setIcon(s_mydoubleIcon);// そのクリックしたアイコンを選択状態のアイコンに変更
-                    showGuide(x, y, theColor);// ガイド表示
-                  }else if(theIcon==s_myIcon){// 選択状態を解除する
-                    boardArray[y][x].setIcon(myIcon);
-                  }else if(theIcon==s_mydoubleIcon){// 選択状態を解除する
-                    boardArray[y][x].setIcon(mydoubleIcon);
+            
+            if(cmd.equals("SET")){
+              String theCName = inputTokens[1];//キャラクターの種類が入る
+              int theColor = Integer.parseInt(inputTokens[2]);
+              if(theCName.equals("RABIT")){
+                if(theColor==0){
+                  for(int i=0; i<5; i++){
+                    boardArray[0][i].setIcon(n_rabitIcon);
+                    winButtonArray[0].setIcon(r_goalIcon);
                   }
-                }else{// もしクリックしたアイコンの種類があいてだったら
-                  clearSelectedIcon(theColor);// 既存の選択部分とガイドを解除
-                  if(theIcon == yourIcon){
-                    boardArray[y][x].setIcon(s_yourIcon);
-                    showGuide(x, y, theColor);// ガイド表示   
-                  }else if(theIcon == yourdoubleIcon){
-                    boardArray[y][x].setIcon(s_yourdoubleIcon);// 選択状態のアイコンに変更
-                    showGuide(x, y, theColor);// ガイド表示   
-                  }else if(theIcon==s_yourIcon){// 選択状態を解除する
-                    boardArray[y][x].setIcon(yourIcon);
-                  }else if(theIcon==s_yourdoubleIcon){
-                    boardArray[y][x].setIcon(yourdoubleIcon);
-                  }              
+                }else if(theColor==1){
+                  for(int i=0; i<5; i++){
+                    boardArray[4][i].setIcon(n_rabitIcon);
+                    winButtonArray[1].setIcon(r_goalIcon);
+                  }
                 }
+              }else if(theCName.equals("BEAR")){
+                if(theColor==0){
+                  for(int i=0; i<5; i++){
+                    boardArray[0][i].setIcon(n_bearIcon);
+                    winButtonArray[0].setIcon(b_goalIcon);
+                  }
+                }else if(theColor==1){
+                  for(int i=0; i<5; i++){
+                    boardArray[4][i].setIcon(n_bearIcon);
+                    winButtonArray[1].setIcon(b_goalIcon);
+                  }
+                }
+              }else if(theCName.equals("CAT")){
+                if(theColor==0){
+                  for(int i=0; i<5; i++){
+                    boardArray[0][i].setIcon(n_catIcon);
+                    winButtonArray[0].setIcon(c_goalIcon);
+                  }
+                }else if(theColor==1){
+                  for(int i=0; i<5; i++){
+                    boardArray[4][i].setIcon(n_catIcon);
+                    winButtonArray[1].setIcon(c_goalIcon);
+                  }
+                }          
               }
 
-              if(cmd.equals("PLACE")){
-                myTurn = 1 - myTurn;
-                System.out.println("myTurn="+myTurn);
-                String theBName = inputTokens[1];
-                int theBnum = Integer.parseInt(theBName);
-                int x = theBnum % 5;
-                int y = theBnum / 5;
-                int theColor = Integer.parseInt(inputTokens[2]);
-                Icon theIcon = boardArray[y][x].getIcon();
+              Icon player1Icon, player2Icon;
+              player1Icon = boardArray[0][0].getIcon();
+              player2Icon = boardArray[4][0].getIcon();
 
-                if(theColor==myColor){              
-                  clearPlacedIcon(theColor);
-                  if(theIcon==guideIcon){
-                    boardArray[y][x].setIcon(myIcon);
-                  }else if(theIcon==g_yourIcon){
-                    boardArray[y][x].setIcon(mydoubleIcon);
+              
+              int switchNum=0;
+            
+              if(player1Icon==n_rabitIcon&&player2Icon==n_bearIcon){
+                switchNum=0;//rb
+              }else if(player1Icon==n_rabitIcon&&player2Icon==n_catIcon){
+                switchNum=1;//rc
+              }else if(player1Icon==n_bearIcon&&player2Icon==n_rabitIcon){
+                switchNum=2;//br
+              }else if(player1Icon==n_bearIcon&&player2Icon==n_catIcon){
+                switchNum=3;//bc
+              }else if(player1Icon==n_catIcon&&player2Icon==n_rabitIcon){
+                switchNum=4;//cr
+              }else if(player1Icon==n_catIcon&&player2Icon==n_bearIcon){
+                switchNum=5;//cb
+              }
+              
+              switch(switchNum){
+                case 0:
+                  if(myColor==0){//rb
+                    myTurn=r_myturn;
+                    yourTurn=r_yourturn;
+                    myWin=r_win;
+                    myLose=r_lose;
+                    myRetry=r_retry;
+                    myGoalIcon=r_goalIcon;
+                    yourGoalIcon=b_goalIcon;
+
+                    myIcon=n_rabitIcon;
+                    s_myIcon=s_rabitIcon;
+                    g_myIcon=g_b_rabitIcon;
+                    mydoubleIcon=n_rbIcon;
+                    s_mydoubleIcon=s_rbIcon;
+                    g_mymasuIcon=g_r_masuIcon;
+
+                    yourIcon=n_bearIcon;
+                    s_yourIcon=s_bearIcon;
+                    g_yourIcon=g_r_bearIcon;
+                    yourdoubleIcon=n_brIcon;
+                    s_yourdoubleIcon=s_brIcon;        
+                    g_yourmasuIcon=g_b_masuIcon;
+                    turnPanel.setIcon(r_myturn);
+                  }else if(myColor==1){
+                    myTurn=b_myturn;
+                    yourTurn=b_yourturn;
+                    myWin=b_win;
+                    myLose=b_lose;
+                    myRetry=b_retry;
+                    myGoalIcon=b_goalIcon;
+                    yourGoalIcon=r_goalIcon;
+
+                    myIcon=n_bearIcon;
+                    s_myIcon=s_bearIcon;
+                    g_myIcon=g_r_bearIcon;
+                    mydoubleIcon=n_brIcon;
+                    s_mydoubleIcon=s_brIcon;
+                    g_mymasuIcon=g_b_masuIcon;
+
+                    yourIcon=n_rabitIcon;
+                    s_yourIcon=s_rabitIcon;
+                    g_yourIcon=g_b_rabitIcon;
+                    yourdoubleIcon=n_rbIcon;
+                    s_yourdoubleIcon=s_rbIcon;        
+                    g_yourmasuIcon=g_r_masuIcon;
+                    turnPanel.setIcon(b_yourturn);
                   }
+                  break;
+                case 1:
+                  if(myColor==0){//rc
+                    myTurn=r_myturn;
+                    yourTurn=r_yourturn;
+                    myWin=r_win;
+                    myLose=r_lose;
+                    myRetry=r_retry;
+                    myGoalIcon=r_goalIcon;
+                    yourGoalIcon=c_goalIcon;
+
+                    myIcon=n_rabitIcon;
+                    s_myIcon=s_rabitIcon;
+                    g_myIcon=g_c_rabitIcon;
+                    mydoubleIcon=n_rcIcon;
+                    s_mydoubleIcon=s_rcIcon;
+                    g_mymasuIcon=g_r_masuIcon;
+
+                    yourIcon=n_catIcon;
+                    s_yourIcon=s_catIcon;
+                    g_yourIcon=g_r_catIcon;
+                    yourdoubleIcon=n_crIcon;
+                    s_yourdoubleIcon=s_crIcon;        
+                    g_yourmasuIcon=g_c_masuIcon;
+                    turnPanel.setIcon(r_myturn);
+                  }else if(myColor==1){
+                    myTurn=c_myturn;
+                    yourTurn=c_yourturn;
+                    myWin=c_win;
+                    myLose=c_lose;
+                    myRetry=c_retry;
+                    myGoalIcon=c_goalIcon;
+                    yourGoalIcon=r_goalIcon;
+
+                    myIcon=n_catIcon;
+                    s_myIcon=s_catIcon;
+                    g_myIcon=g_r_catIcon;
+                    mydoubleIcon=n_crIcon;
+                    s_mydoubleIcon=s_crIcon;
+                    g_mymasuIcon=g_c_masuIcon;
+
+                    yourIcon=n_rabitIcon;
+                    s_yourIcon=s_rabitIcon;
+                    g_yourIcon=g_c_rabitIcon;
+                    yourdoubleIcon=n_rcIcon;
+                    s_yourdoubleIcon=s_rcIcon;                  
+                    g_yourmasuIcon=g_r_masuIcon;
+                    turnPanel.setIcon(c_yourturn);
+                  }
+                  break;              
+                case 2:
+                  if(myColor==0){//br
+                    myTurn=b_myturn;
+                    yourTurn=b_yourturn;
+                    myWin=b_win;
+                    myLose=b_lose;
+                    myRetry=b_retry;
+                    myGoalIcon=b_goalIcon;
+                    yourGoalIcon=r_goalIcon;
+
+                    myIcon=n_bearIcon;
+                    s_myIcon=s_bearIcon;
+                    g_myIcon=g_r_bearIcon;
+                    mydoubleIcon=n_brIcon;                 
+                    s_mydoubleIcon=s_brIcon;
+                    g_mymasuIcon=g_b_masuIcon;
+
+                    yourIcon=n_rabitIcon;
+                    s_yourIcon=s_rabitIcon;
+                    g_yourIcon=g_b_rabitIcon;
+                    yourdoubleIcon=n_rbIcon;
+                    s_yourdoubleIcon=s_rbIcon;        
+                    g_yourmasuIcon=g_r_masuIcon;
+                    turnPanel.setIcon(b_myturn);
+                  }else if(myColor==1){
+                    myTurn=r_myturn;
+                    yourTurn=r_yourturn;
+                    myWin=r_win;
+                    myLose=r_lose;
+                    myRetry=r_retry;
+                    myGoalIcon=r_goalIcon;
+                    yourGoalIcon=b_goalIcon;
+
+                    myIcon=n_rabitIcon;
+                    s_myIcon=s_rabitIcon;
+                    g_myIcon=g_b_rabitIcon;
+                    mydoubleIcon=n_rbIcon;
+                    s_mydoubleIcon=s_rbIcon;
+                    g_mymasuIcon=g_r_masuIcon;
+
+                    yourIcon=n_bearIcon;
+                    s_yourIcon=s_bearIcon;
+                    g_yourIcon=g_r_bearIcon;
+                    yourdoubleIcon=n_brIcon;
+                    s_yourdoubleIcon=s_brIcon;        
+                    g_yourmasuIcon=g_b_masuIcon;
+                    turnPanel.setIcon(r_yourturn);
+                  }
+                  break;
+                case 3:
+                  if(myColor==0){//bc　ここから
+                    myTurn=b_myturn;
+                    yourTurn=b_yourturn;
+                    myWin=b_win;
+                    myLose=b_lose;
+                    myRetry=b_retry;
+                    myGoalIcon=b_goalIcon;
+                    yourGoalIcon=c_goalIcon;
+
+                    myIcon=n_bearIcon;
+                    s_myIcon=s_bearIcon;
+                    g_myIcon=g_c_bearIcon;
+                    mydoubleIcon=n_bcIcon;
+                    s_mydoubleIcon=s_bcIcon;
+                    g_mymasuIcon=g_b_masuIcon;
+
+                    yourIcon=n_catIcon;
+                    s_yourIcon=s_catIcon;
+                    g_yourIcon=g_b_catIcon;
+                    yourdoubleIcon=n_cbIcon;
+                    s_yourdoubleIcon=s_cbIcon;        
+                    g_yourmasuIcon=g_c_masuIcon;
+                    turnPanel.setIcon(b_myturn);
+                  }else if(myColor==1){
+                    myTurn=c_myturn;
+                    yourTurn=c_yourturn;
+                    myWin=c_win;
+                    myLose=c_lose;
+                    myRetry=c_retry;
+                    myGoalIcon=c_goalIcon;
+                    yourGoalIcon=b_goalIcon;
+
+                    myIcon=n_catIcon;
+                    s_myIcon=s_catIcon;
+                    g_myIcon=g_b_catIcon;
+                    mydoubleIcon=n_cbIcon;
+                    s_mydoubleIcon=s_cbIcon;
+                    g_mymasuIcon=g_c_masuIcon;
+
+                    yourIcon=n_bearIcon;
+                    s_yourIcon=s_bearIcon;
+                    g_yourIcon=g_c_bearIcon;
+                    yourdoubleIcon=n_bcIcon;
+                    s_yourdoubleIcon=s_bcIcon;        
+                    g_yourmasuIcon=g_b_masuIcon;
+                    turnPanel.setIcon(c_yourturn);
+                  }
+                  break;              
+                case 4:
+                  if(myColor==0){//cr
+                    myTurn=c_myturn;
+                    yourTurn=c_yourturn;
+                    myWin=c_win;
+                    myLose=c_lose;
+                    myRetry=c_retry;
+                    myGoalIcon=c_goalIcon;
+                    yourGoalIcon=r_goalIcon;
+
+                    myIcon=n_catIcon;
+                    s_myIcon=s_catIcon;
+                    g_myIcon=g_r_catIcon;
+                    mydoubleIcon=n_crIcon;
+                    s_mydoubleIcon=s_crIcon;
+                    g_mymasuIcon=g_c_masuIcon;
+
+                    yourIcon=n_rabitIcon;
+                    s_yourIcon=s_rabitIcon;
+                    g_yourIcon=g_c_rabitIcon;
+                    yourdoubleIcon=n_rcIcon;
+                    s_yourdoubleIcon=s_rcIcon;        
+                    g_yourmasuIcon=g_r_masuIcon;
+                    turnPanel.setIcon(c_myturn);
+                  }else if(myColor==1){
+                    myTurn=r_myturn;
+                    yourTurn=r_yourturn;
+                    myWin=r_win;
+                    myLose=r_lose;
+                    myRetry=r_retry;
+                    myGoalIcon=r_goalIcon;
+                    yourGoalIcon=c_goalIcon;
+
+                    myIcon=n_rabitIcon;
+                    s_myIcon=s_rabitIcon;
+                    g_myIcon=g_c_rabitIcon;
+                    mydoubleIcon=n_rcIcon;
+                    s_mydoubleIcon=s_rcIcon;
+                    g_mymasuIcon=g_r_masuIcon;
+                    
+                    yourIcon=n_catIcon;
+                    s_yourIcon=s_catIcon;
+                    g_yourIcon=g_r_catIcon;
+                    yourdoubleIcon=n_crIcon;
+                    s_yourdoubleIcon=s_crIcon;        
+                    g_yourmasuIcon=g_c_masuIcon;
+                    turnPanel.setIcon(r_yourturn);
+                  }
+                  break;               
+                case 5:
+                  if(myColor==0){//cb
+                    myTurn=c_myturn;
+                    yourTurn=c_yourturn;
+                    myWin=c_win;
+                    myLose=c_lose;
+                    myRetry=c_retry;
+                    myGoalIcon=c_goalIcon;
+                    yourGoalIcon=b_goalIcon;
+
+                    myIcon=n_catIcon;
+                    s_myIcon=s_catIcon;
+                    g_myIcon=g_b_catIcon;
+                    mydoubleIcon=n_cbIcon;
+                    s_mydoubleIcon=s_cbIcon;
+                    g_mymasuIcon=g_c_masuIcon;
+                    
+                    yourIcon=n_bearIcon;
+                    s_yourIcon=s_bearIcon;
+                    g_yourIcon=g_c_bearIcon;
+                    yourdoubleIcon=n_bcIcon;
+                    s_yourdoubleIcon=s_bcIcon;        
+                    g_yourmasuIcon=g_b_masuIcon;
+                    turnPanel.setIcon(c_myturn);
+                  }else if(myColor==1){
+                    myTurn=b_myturn;
+                    yourTurn=b_yourturn;
+                    myWin=b_win;
+                    myLose=b_lose;
+                    myRetry=b_retry;
+                    myGoalIcon=b_goalIcon;
+                    yourGoalIcon=c_goalIcon;
+
+                    myIcon=n_bearIcon;
+                    s_myIcon=s_bearIcon;
+                    g_myIcon=g_c_bearIcon;
+                    mydoubleIcon=n_bcIcon;
+                    s_mydoubleIcon=s_bcIcon;
+                    g_mymasuIcon=g_b_masuIcon;
+                    
+                    yourIcon=n_catIcon;
+                    s_yourIcon=s_catIcon;
+                    g_yourIcon=g_b_catIcon;
+                    yourdoubleIcon=n_cbIcon;
+                    s_yourdoubleIcon=s_cbIcon;        
+                    g_yourmasuIcon=g_c_masuIcon;
+                    turnPanel.setIcon(b_yourturn);
+                  }
+                  break; 
+              }
+            }
+
+            if(cmd.equals("SELECT")){
+              String theBName = inputTokens[1];
+              int theBnum = Integer.parseInt(theBName);
+              int x = theBnum % 5;
+              int y = theBnum / 5;
+              int theColor = Integer.parseInt(inputTokens[2]);
+              Icon theIcon = boardArray[y][x].getIcon();
+
+              if(theColor == myColor){// もしクリックしたアイコンの種類がじぶんだったら
+                clearSelectedIcon(theColor);// 既存の選択部分とガイドを解除
+                if(theIcon == myIcon){// 次に、クリックしたアイコンがコマだったら
+                  boardArray[y][x].setIcon(s_myIcon);// そのクリックしたアイコンを選択状態のアイコンに変更
+                  showGuide(x, y, theColor);// ガイド表示         
+                }else if(theIcon == mydoubleIcon){
+                  boardArray[y][x].setIcon(s_mydoubleIcon);// そのクリックしたアイコンを選択状態のアイコンに変更
+                  showGuide(x, y, theColor);// ガイド表示
+                }else if(theIcon==s_myIcon){// 選択状態を解除する
+                  boardArray[y][x].setIcon(myIcon);
+                }else if(theIcon==s_mydoubleIcon){// 選択状態を解除する
+                  boardArray[y][x].setIcon(mydoubleIcon);
+                }
+              }else{// もしクリックしたアイコンの種類があいてだったら
+                clearSelectedIcon(theColor);// 既存の選択部分とガイドを解除
+                if(theIcon == yourIcon){
+                  boardArray[y][x].setIcon(s_yourIcon);
+                  showGuide(x, y, theColor);// ガイド表示   
+                }else if(theIcon == yourdoubleIcon){
+                  boardArray[y][x].setIcon(s_yourdoubleIcon);// 選択状態のアイコンに変更
+                  showGuide(x, y, theColor);// ガイド表示   
+                }else if(theIcon==s_yourIcon){// 選択状態を解除する
+                  boardArray[y][x].setIcon(yourIcon);
+                }else if(theIcon==s_yourdoubleIcon){
+                  boardArray[y][x].setIcon(yourdoubleIcon);
+                }              
+              }
+            }
+
+            if(cmd.equals("PLACE")){
+              turnNum = 1 - turnNum;
+              Icon turnIcon = turnPanel.getIcon();
+              if(turnIcon==myTurn){
+                turnPanel.setIcon(yourTurn);
+              }else if(turnIcon==yourTurn){
+                turnPanel.setIcon(myTurn);
+              }
+              System.out.println("turnNum="+turnNum);
+              String theBName = inputTokens[1];
+              int theBnum = Integer.parseInt(theBName);
+              int x = theBnum % 5;
+              int y = theBnum / 5;
+              int theColor = Integer.parseInt(inputTokens[2]);
+              Icon theIcon = boardArray[y][x].getIcon();
+
+              if(theColor==myColor){              
+                clearPlacedIcon(theColor);
+                if(theIcon==g_mymasuIcon){
+                  boardArray[y][x].setIcon(myIcon);
+                }else if(theIcon==g_yourIcon){
+                  boardArray[y][x].setIcon(mydoubleIcon);
+                }
+              }else{
+                clearPlacedIcon(theColor);
+                if(theIcon==g_yourmasuIcon){
+                  boardArray[y][x].setIcon(yourIcon);
+                }else if(theIcon==g_myIcon){
+                  boardArray[y][x].setIcon(yourdoubleIcon);
+                }
+              }
+              
+              if(myColor==0){
+                int count = 0;
+                for(int i=0; i<5; i++){
+                  if(boardArray[4][i].getIcon()==myIcon||boardArray[4][i].getIcon()==mydoubleIcon){
+                      count++;
+                  }
+                }
+                if(count>0){
+                  winFlag=true;
+                  System.out.println("winFlag0="+winFlag);
                 }else{
-                  clearPlacedIcon(theColor);
-                  if(theIcon==guideIcon){
-                    boardArray[y][x].setIcon(yourIcon);
-                  }else if(theIcon==g_myIcon){
-                    boardArray[y][x].setIcon(yourdoubleIcon);
+                  winFlag=false;
+                  System.out.println("winFlag0="+winFlag);
+                }
+              }else if(myColor==1){
+                int count = 0;
+                for(int i=0; i<5; i++){
+                  if(boardArray[0][i].getIcon()==myIcon||boardArray[0][i].getIcon()==mydoubleIcon){
+                      count++;
                   }
                 }
-                
-                if(myColor==0){
-                  int count = 0;
-                  for(int i=0; i<5; i++){
-                    if(boardArray[4][i].getIcon()==myIcon||boardArray[4][i].getIcon()==mydoubleIcon){
-                        count++;
-                    }
-                  }
-                  if(count>0){
-                    winFlag=true;
-                    System.out.println("winFlag0="+winFlag);
-                  }else{
-                    winFlag=false;
-                    System.out.println("winFlag0="+winFlag);
-                  }
-                }else if(myColor==1){
-                  int count = 0;
-                  for(int i=0; i<5; i++){
-                    if(boardArray[0][i].getIcon()==myIcon||boardArray[0][i].getIcon()==mydoubleIcon){
-                        count++;
-                    }
-                  }
-                  if(count>0){
-                    winFlag=true;
-                    System.out.println("winFlag1="+winFlag);
-                  }else{
-                    winFlag=false;
-                    System.out.println("winFlag1="+winFlag);
-                  }
+                if(count>0){
+                  winFlag=true;
+                  System.out.println("winFlag1="+winFlag);
+                }else{
+                  winFlag=false;
+                  System.out.println("winFlag1="+winFlag);
                 }
               }
+            }
+            resultFlag=false;
+            if(cmd.equals("WIN")){
+              resultFlag=true;
+              String theBName = inputTokens[1];
+              int theBnum = Integer.parseInt(theBName);
+              int theColor = Integer.parseInt(inputTokens[2]);
+              
+              result();
 
-              if(cmd.equals("WIN")){
-                  String theBName = inputTokens[1];
-                  int theBnum = Integer.parseInt(theBName);
-                  int theColor = Integer.parseInt(inputTokens[2]);
-                  if(theBnum!=theColor){
-                    if(theBnum!=myColor){
-                      System.out.println("勝ち");
-                      winButtonArray[theBnum].setIcon(myIcon);
-                    }else{
-                      System.out.println("負け");
-                      winButtonArray[theBnum].setIcon(yourIcon);
-                    }
-                  }else{
-                    System.out.println("置くことが出来ません");
-                  }                  
-                  clearSelectedIcon(theColor);
-                  popUp();
-              }
-
-              if(cmd.equals("END")){
-                resetBoard();
-              }
-              if(cmd.equals("REPLAY")){
-                resetBoard();
-                System.out.println(myTurn);
-              }
-					}else{
+              retryButton.setIcon(myRetry);
+              titleBackButton.setIcon(titleBack);
+              if(theBnum!=theColor){
+                if(theBnum!=myColor){
+                  System.out.println("勝ち");
+                  winButtonArray[theBnum].setIcon(myIcon);
+                  resultPanel.setIcon(myWin);
+                  
+                }else{
+                  System.out.println("負け");
+                  winButtonArray[theBnum].setIcon(yourIcon);
+                  resultPanel.setIcon(myLose);
+                }
+              }else{
+                System.out.println("置くことが出来ません");
+              }                  
+              clearSelectedIcon(theColor);
+              //popUp();
+            }
+					
+        }else{
 						break;
 					}
 				}
@@ -490,12 +852,64 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     // net.change(ti);
 	}
 
+  public void result(){
+    resultPanel = new JLabel();
+    //resultPanel.setBackground(Color.GREEN);
+    resultPanel.setBounds(262, 143, 500, 500);
+    scene3.add(resultPanel);
+    scene3.setLayer(resultPanel, 33);
+    resultPanel.setOpaque(false);
+    
+    retryButton = new JButton();
+    retryButton.setBounds(407, 470, 210, 60);
+    scene3.add(retryButton);
+    scene3.setLayer(retryButton, 34);
+    retryButton.addActionListener(this);
+    retryButton.setContentAreaFilled(false);
+    retryButton.setBorderPainted(false);
+    retryButton.setActionCommand("RETRY");
+
+    titleBackButton = new JButton();
+    titleBackButton.setBounds(407, 540, 210, 60);
+    scene3.add(titleBackButton);
+    scene3.setLayer(titleBackButton, 35);
+    titleBackButton.addActionListener(this);
+    titleBackButton.setContentAreaFilled(false);
+    titleBackButton.setBorderPainted(false);    
+    titleBackButton.setActionCommand("END");
+  }
+
   // メソッド
   public void actionPerformed(ActionEvent e){
     String cmd = e.getActionCommand();
     System.out.println("a-cmd"+cmd);
     System.out.println("myColor="+myColor);
     System.out.println(cmd.equals(Integer.toString(myColor)));
+
+    if(cmd.equals("RETRY")){
+      if(resultFlag){
+        resultPanel.setIcon(null);
+        retryButton.setIcon(null);
+        titleBackButton.setIcon(null);
+        scene3.setLayer(resultPanel, 1);
+        scene3.setLayer(retryButton, 2);
+        scene3.setLayer(titleBackButton, 3);
+        
+        resetBoard(myIcon, yourIcon, myGoalIcon, yourGoalIcon, myColor);
+        setUser(myIcon, yourIcon, myColor);
+
+        resultFlag=false;
+      }
+    }else if(cmd.equals("END")){
+      if(resultFlag){
+        resultPanel.setIcon(null);
+        retryButton.setIcon(null);
+        titleBackButton.setIcon(null);
+        clearBoard();
+        layout.first(scenePanel);
+        resultFlag=false;
+      }
+    }
 
     if (cmd.equals("First")){
       layout.first(scenePanel);
@@ -507,27 +921,29 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
       layout.previous(scenePanel);
     }
     if (cmd.equals("character1")){
-      JLabel chara1 = new JLabel(character1Img);
-      scene3.add(chara1);
-      chara1.setBounds(50, 50,300,300);
-      scene3.setLayer(chara1,1000);
       layout.next(scenePanel);
+      setCount += 1;
+      String msg = "SET"+" "+"RABIT"+" "+myColor;
+      out.println(msg);
+      out.flush();
     }else if(cmd.equals("character2")){
-      JLabel chara2 = new JLabel(character2Img);
-      scene3.add(chara2);
-      chara2.setBounds(50, 50,300,300);
-      scene3.setLayer(chara2,1000);
       layout.next(scenePanel);
+      setCount += 1;
+      String msg = "SET"+" "+"BEAR"+" "+myColor;
+      out.println(msg);
+      out.flush();
     }else if(cmd.equals("character3")){
-      JLabel chara3 = new JLabel(character3Img);
-      scene3.add(chara3);
-      chara3.setBounds(50, 50,300,300);
-      scene3.setLayer(chara3,1000);
       layout.next(scenePanel);
+      setCount += 1;
+      String msg = "SET"+" "+"CAT"+" "+myColor;
+      out.println(msg);
+      out.flush();
+    }else if(cmd.equals("RETURN")){
+      layout.previous(scenePanel);
     }
 
     boolean flag =false;
-    if(myTurn==1){
+    if(turnNum==1){
       if(winFlag){
         if (cmd.equals("0")||cmd.equals("1")){
           JButton theButton = (JButton)e.getSource();
@@ -539,12 +955,6 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
         }
       }
     }
-  }
-
-  public void popUp(){
-    WinDialogWindow dlg = new WinDialogWindow(this);
-    dlg.add(new JButton());
-    setVisible(true);
   }
 
   // メソッド
@@ -564,15 +974,19 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     System.out.println("x="+x);
     System.out.println("y="+y);
 
-    if(myTurn==1){
+    if(turnNum==1){
       // コマの選択状態を示す
+      theSoundPlayer2 = new SoundPlayer("kawaii.wav");
+      theSoundPlayer2.play();
       if(theIcon == myIcon || theIcon == s_myIcon || theIcon == mydoubleIcon || theIcon == s_mydoubleIcon){
         String msg = "SELECT"+" "+theArrayIndex+" "+myColor;
         out.println(msg);
         out.flush();
       }
       // コマを置く
-      if(theIcon == guideIcon || theIcon == g_yourIcon){
+      if(theIcon == g_mymasuIcon || theIcon == g_yourIcon){
+        theSoundPlayer2 = new SoundPlayer("443_2.wav");
+        theSoundPlayer2.play();
         String msg = "PLACE"+" "+theArrayIndex+" "+myColor;
         out.println(msg);
         out.flush();
@@ -583,40 +997,31 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 	}
 	
 	public void mouseEntered(MouseEvent e) {
-    // System.out.println("ホバー");
-    JButton theButton = (JButton)e.getComponent();
-    String theArrayIndex = theButton.getActionCommand();
-    Icon theIcon = theButton.getIcon();
+    if(resultFlag==false){
+      // System.out.println("ホバー");
+      JButton theButton = (JButton)e.getComponent();
+      String theArrayIndex = theButton.getActionCommand();
 
-    int temp = Integer.parseInt(theArrayIndex);
-    int x = temp % 5;
-    int y = temp / 5;
+      int temp = Integer.parseInt(theArrayIndex);
+      int x = temp % 5;
+      int y = temp / 5;
 
-    // System.out.println("x="+x);
-    // System.out.println("y="+y);
-
-    // if (theIcon == myIcon){
-    //   boardArray[y][x].setIcon(catIcon);
-    // }
-    scene3.setLayer(boardArray[y][x],1000);
-
+      scene3.setLayer(boardArray[y][x],1000);
+    }
 	}
 	
 	public void mouseExited(MouseEvent e) {
-    // System.out.println("ホバーおわり");
-    JButton theButton = (JButton)e.getComponent();
-    String theArrayIndex = theButton.getActionCommand();
-    Icon theIcon = theButton.getIcon();
+    if(resultFlag==false){
+      // System.out.println("ホバーおわり");
+      JButton theButton = (JButton)e.getComponent();
+      String theArrayIndex = theButton.getActionCommand();
 
-    int temp = Integer.parseInt(theArrayIndex);
-    int x = temp % 5;
-    int y = temp / 5;
+      int temp = Integer.parseInt(theArrayIndex);
+      int x = temp % 5;
+      int y = temp / 5;
 
-    // System.out.println("x="+x);
-    // System.out.println("y="+y);
-
-    //boardArray[y][x].setIcon(orangeIcon);
-    scene3.setLayer(boardArray[y][x],y*5+x+1);
+      scene3.setLayer(boardArray[y][x],y*5+x+4);
+    }
 	}
 	
 	public void mousePressed(MouseEvent e) {
@@ -638,18 +1043,23 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 
   // ガイドの表示
   public void showGuide(int x, int y, int theColor){
+    System.out.println("発動");
     for (int j=-1;j<2;j++){
       for (int i=-1;i<2;i++){
         int posX = x + i;
         int posY = y + j;
-
         if(isExceededArea(posX, posY)){
           continue;// trueなら以降の処理をスキップ
         }
-
+        // 周辺のマスのアイコンをとってくる
         Icon theIcon2 = boardArray[posY][posX].getIcon();
-        if(theIcon2 == orangeIcon){
-          boardArray[posY][posX].setIcon(guideIcon);
+        System.out.println(theIcon2);
+        if(theIcon2 == masuIcon){
+          if(theColor==myColor){
+            boardArray[posY][posX].setIcon(g_mymasuIcon);
+          }else{
+            boardArray[posY][posX].setIcon(g_yourmasuIcon);
+          }
         }else if(theColor==myColor){
           if(theIcon2 == yourIcon){
             boardArray[posY][posX].setIcon(g_yourIcon);
@@ -670,8 +1080,8 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
         for(int i=0; i<5; i++){
           if(boardArray[j][i].getIcon() == s_myIcon){// 選択状態の自分のアイコンをもとに戻す
             boardArray[j][i].setIcon(myIcon);
-          }else if(boardArray[j][i].getIcon() == guideIcon){// ガイド表示部分を普通のマスに戻す
-            boardArray[j][i].setIcon(orangeIcon);
+          }else if(boardArray[j][i].getIcon() == g_mymasuIcon){// ガイド表示部分を普通のマスに戻す
+            boardArray[j][i].setIcon(masuIcon);
           }else if(boardArray[j][i].getIcon() == g_yourIcon){// ガイド状態の相手のアイコンをもとに戻す
             boardArray[j][i].setIcon(yourIcon);
           }else if(boardArray[j][i].getIcon() == s_mydoubleIcon){
@@ -684,8 +1094,8 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
         for(int i=0; i<5; i++){
           if(boardArray[j][i].getIcon() == s_yourIcon){// 選択状態の自分のアイコンをもとに戻す
             boardArray[j][i].setIcon(yourIcon);
-          }else if(boardArray[j][i].getIcon() == guideIcon){// ガイド表示部分を普通のマスに戻す
-            boardArray[j][i].setIcon(orangeIcon);
+          }else if(boardArray[j][i].getIcon() == g_yourmasuIcon){// ガイド表示部分を普通のマスに戻す
+            boardArray[j][i].setIcon(masuIcon);
           }else if(boardArray[j][i].getIcon() == g_myIcon){// ガイド状態の相手のアイコンをもとに戻す
             boardArray[j][i].setIcon(myIcon);
           }else if(boardArray[j][i].getIcon() == s_yourdoubleIcon){
@@ -702,9 +1112,9 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
       for(int j=0;j<5;j++){// まず、他の選択部分があれば解除する
         for(int i=0; i<5; i++){
           if(boardArray[j][i].getIcon() == s_myIcon){// 選択状態の自分のアイコンをもとに戻す
-            boardArray[j][i].setIcon(orangeIcon);
-          }else if(boardArray[j][i].getIcon() == guideIcon){// ガイド表示部分を普通のマスに戻す
-            boardArray[j][i].setIcon(orangeIcon);
+            boardArray[j][i].setIcon(masuIcon);
+          }else if(boardArray[j][i].getIcon() == g_mymasuIcon){// ガイド表示部分を普通のマスに戻す
+            boardArray[j][i].setIcon(masuIcon);
           }else if(boardArray[j][i].getIcon() == g_yourIcon){// ガイド表示部分を普通のマスに戻す
             boardArray[j][i].setIcon(yourIcon);
           }else if(boardArray[j][i].getIcon() == s_mydoubleIcon){
@@ -716,9 +1126,9 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
       for(int j=0;j<5;j++){// まず、他の選択部分があれば解除する
         for(int i=0; i<5; i++){
           if(boardArray[j][i].getIcon()==s_yourIcon){// 選択状態の自分のアイコンをもとに戻す
-            boardArray[j][i].setIcon(orangeIcon);
-          }else if(boardArray[j][i].getIcon() == guideIcon){// ガイド表示部分を普通のマスに戻す
-            boardArray[j][i].setIcon(orangeIcon);
+            boardArray[j][i].setIcon(masuIcon);
+          }else if(boardArray[j][i].getIcon() == g_yourmasuIcon){// ガイド表示部分を普通のマスに戻す
+            boardArray[j][i].setIcon(masuIcon);
           }else if(boardArray[j][i].getIcon() == g_myIcon){// ガイド表示部分を普通のマスに戻す
             boardArray[j][i].setIcon(myIcon);
           }else if(boardArray[j][i].getIcon() == s_yourdoubleIcon){
@@ -729,28 +1139,47 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     }
   }
 
-  public static void resetBoard(){
+  public static void resetBoard(ImageIcon myIcon, ImageIcon yourIcon, ImageIcon myGoalIcon, ImageIcon yourGoalIcon, int myColor){
 		for(int j=0;j<5;j++){
       for(int i=0; i<5; i++){
-        boardArray[j][i].setIcon(orangeIcon);
+        boardArray[j][i].setIcon(masuIcon);
       }
     }
-    setUser();
-    setWinArea();
+    setUser(myIcon, yourIcon, myColor);
+    setWinArea(myGoalIcon, yourGoalIcon, myColor);
   }
 
-  public static void setUser(){
-    for(int i=0; i<5; i++){
-      boardArray[0][i].setIcon(redIcon);
-    }
-    for(int i=0; i<5; i++){
-      boardArray[4][i].setIcon(blueIcon);
+  public static void setUser(ImageIcon myIcon, ImageIcon yourIcon, int myColor){
+    if(myColor==0){
+      for(int i=0; i<5; i++){
+        boardArray[0][i].setIcon(myIcon);
+        boardArray[4][i].setIcon(yourIcon);
+      }
+    }else{
+      for(int i=0; i<5; i++){
+        boardArray[0][i].setIcon(yourIcon);
+        boardArray[4][i].setIcon(myIcon);
+      }
     }
   }
 
-  public static void setWinArea(){
-    for(int i=0; i<2; i++){
-      winButtonArray[i].setIcon(rbIcon);
+  public static void setWinArea(ImageIcon myGoalIcon, ImageIcon yourGoalIcon, int myColor){
+    if(myColor==0){
+      winButtonArray[0].setIcon(myGoalIcon);
+      winButtonArray[1].setIcon(yourGoalIcon);
+    }else{
+      winButtonArray[0].setIcon(yourGoalIcon);
+      winButtonArray[1].setIcon(myGoalIcon);
+    }
+  }
+
+  public static void clearBoard(){
+    for(int i=0; i<5; i++){
+      for(int j=0; j<5; j++){
+        boardArray[j][i].setIcon(masuIcon);
+        winButtonArray[0].setIcon(null);
+        winButtonArray[0].setIcon(null);
+      }
     }
   }
   
@@ -814,55 +1243,4 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     }
   }
   
-}
-
-//ダイアログのためのクラス
-//絵をクリックしたら閉じるようにしている
-class WinDialogWindow extends JDialog implements ActionListener{
-    WinDialogWindow(JFrame owner) {
-        super(owner);//呼び出しもととの親子関係の設定．これをコメントアウトすると別々のダイアログになる
-
-		    Container c = this.getContentPane();	//フレームのペインを取得する
-        c.setLayout(null);		//自動レイアウトの設定を行わない
-        c.setBackground(Color.WHITE);
-
-        setTitle("You Win!");//タイトルの設定
-        setSize(800, 500);//大きさの設定
-        setResizable(false);//拡大縮小禁止//trueにすると拡大縮小できるようになる
-        setUndecorated(true); //タイトルを表示しない
-        setModal(true);//上を閉じるまで下を触れなくする（falseにすると触れる）
-
-        JButton rePlayButton = new JButton("もういっかい");
-        JButton endButton = new JButton("タイトルに戻る");
-        c.add(rePlayButton);
-        c.add(endButton);
-        rePlayButton.addActionListener(this);
-        rePlayButton.setActionCommand("REPLAY");
-        endButton.addActionListener(this);
-        endButton.setActionCommand("END");
-
-        rePlayButton.setBounds(250, 200, 300, 100);
-        endButton.setBounds(250, 350, 300, 100);
-        //ダイアログの大きさや表示場所を変更できる
-        //親のダイアログの中心に表示したい場合は，親のウィンドウの中心座標を求めて，子のダイアログの大きさの半分ずらす
-        setLocation(owner.getBounds().x+owner.getWidth()/2-this.getWidth()/2,owner.getBounds().y+owner.getHeight()/2-this.getHeight()/2);
-        setVisible(true);
-    }
-    public void actionPerformed(ActionEvent e) {
-      String cmd = e.getActionCommand();
-      if (cmd.equals("REPLAY")){
-        //layout.first(scenePanel);
-        this.dispose();//Dialogを廃棄する
-        String msg = "REPLAY";
-        MyClient.out.println(msg);
-        MyClient.out.flush();
-        //MyClient.resetBoard();
-      }else if (cmd.equals("END")){
-        String msg = "END";
-        MyClient.out.println(msg);
-        MyClient.out.flush();
-        MyClient.layout.first(MyClient.scenePanel);
-        this.dispose();//Dialogを廃棄する
-      }
-    }
 }
