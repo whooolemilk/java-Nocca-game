@@ -253,8 +253,6 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
       }
 		}
 
-    //boardArray[3][2].setIcon(n_rabitIcon);
-
     turnPanel = new JLabel();
     turnPanel.setBounds(20, 20, 350, 100);
     scene3.add(turnPanel);
@@ -266,7 +264,7 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
       String j = Integer.toString(i);
       winButtonArray[i] = new JButton();
       scene3.add(winButtonArray[i]);
-      winButtonArray[i].setBounds(670-440*i,90+440*i,140,140);
+      winButtonArray[i].setBounds(670-470*i,90+440*i,140,140);
       winButtonArray[i].addActionListener(this);
       scene3.setLayer(winButtonArray[i], 30+i);
       winButtonArray[i].setActionCommand(j);
