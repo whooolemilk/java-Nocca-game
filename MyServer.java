@@ -107,6 +107,6 @@ class MyServer{
 			}
 		} catch (Exception e) {
 			System.err.println("ソケット作成時にエラーが発生しました: " + e);
-		}
+    }
 	}
 }

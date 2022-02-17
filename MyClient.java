@@ -1,14 +1,12 @@
 import java.net.*;
 import java.io.*;
 import javax.swing.*;
-import java.awt.Color;
 
-import java.lang.*;
-import java.awt.*;
-import java.awt.image.*;
+// import java.lang.*;
+// import java.awt.*;
+// import java.awt.image.*;
 import java.awt.event.*;
-import javax.swing.*;
-import java.util.*;
+//import java.util.*;
 
 // 音楽再生
 import java.io.File;
@@ -22,27 +20,31 @@ import java.awt.CardLayout;
 import java.awt.BorderLayout;
 
 public class MyClient extends JFrame implements MouseListener,MouseMotionListener, ActionListener {
-  // フィールド宣言
-  private static JButton boardArray[][], winButtonArray[];// ボード5*5
-  private JButton startButton;
+  // JButton
+  private static JButton boardArray[][], winButtonArray[];
+  private JButton startButton, retryButton, titleBackButton;
+  
   private int myColor, turnNum;
-  private ImageIcon myIcon, yourIcon, character1Img, character2Img, character3Img, winIcon;
-  private ImageIcon mydoubleIcon, yourdoubleIcon;
-  private ImageIcon s_myIcon, s_yourIcon, s_doubleIcon, s_mydoubleIcon, s_yourdoubleIcon; // 選択状態アイコン
-  private ImageIcon g_myIcon, g_yourIcon, ubutton, kbutton, nbutton, g_masuIcon;
-  private JLayeredPane c, scene3;
+  private JLayeredPane scene3;
   private JLabel bg, title, select, turnPanel, resultPanel;
   private JPanel scene1, scene2;
   private boolean winFlag, resultFlag;
-  private static ImageIcon rIcon, blueIcon;
-  private static ImageIcon rbIcon, g_mymasuIcon,g_yourmasuIcon;
-  private ImageIcon bgImg, titleImg, selectImg, returnIcon;
-	static PrintWriter out;
+  private PrintWriter out;
   SoundPlayer theSoundPlayer1;
   SoundPlayer theSoundPlayer2;
+  private JPanel scenePanel;
+  private CardLayout layout;
+  
+  // ImageIcon
+  private ImageIcon myIcon, yourIcon;
+  private ImageIcon mydoubleIcon, yourdoubleIcon;
+  private ImageIcon s_myIcon, s_yourIcon, s_mydoubleIcon, s_yourdoubleIcon; // 選択状態アイコン
+  private ImageIcon g_myIcon, g_yourIcon, ubutton, kbutton, nbutton;
+  private ImageIcon g_mymasuIcon,g_yourmasuIcon;
+  private ImageIcon bgImg, titleImg, selectImg, returnIcon;
 
   private static ImageIcon masuIcon;
-  private ImageIcon n_rabitIcon, n_catIcon, n_bearIcon, rabitIcon2, catIcon2, bearIcon2;
+  private ImageIcon n_rabitIcon, n_catIcon, n_bearIcon;
   private ImageIcon n_rbIcon, n_rcIcon, n_brIcon, n_bcIcon, n_crIcon, n_cbIcon;
   private ImageIcon s_rabitIcon, s_bearIcon, s_catIcon;
   private ImageIcon s_rbIcon,s_rcIcon,s_brIcon,s_bcIcon,s_crIcon,s_cbIcon;
@@ -55,15 +57,8 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
   private ImageIcon myGoalIcon, yourGoalIcon;
   private ImageIcon r_win, b_win, c_win;
   private ImageIcon r_lose, b_lose, c_lose;
-  private static ImageIcon r_retry, b_retry, c_retry, titleBack;
-  private JButton retryButton, titleBackButton;
+  private ImageIcon r_retry, b_retry, c_retry, titleBack;
 
-  private int setCount = 0;// 0：うさぎ、１：くま、２：ねこ
-
-
-
-  static JPanel scenePanel;
-  static CardLayout layout;
 
   // コンストラクタ
 	public MyClient() {
@@ -147,11 +142,6 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     ubutton = new ImageIcon("img/uselect1.png");
     kbutton = new ImageIcon("img/kselect1.png");
     nbutton = new ImageIcon("img/nselect1.png");
-
-    // 全身アイコン
-    rabitIcon2 = new ImageIcon("img/rabit1.png");
-    catIcon2 = new ImageIcon("img/cat1.png");
-    bearIcon2 = new ImageIcon("img/bear1.png");
 
     // ターン表示
     r_myturn = new ImageIcon("img/r-myturn.png");
@@ -918,19 +908,16 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
     }
     if (cmd.equals("character1")){
       layout.next(scenePanel);
-      setCount += 1;
       String msg = "SET"+" "+"RABIT"+" "+myColor;
       out.println(msg);
       out.flush();
     }else if(cmd.equals("character2")){
       layout.next(scenePanel);
-      setCount += 1;
       String msg = "SET"+" "+"BEAR"+" "+myColor;
       out.println(msg);
       out.flush();
     }else if(cmd.equals("character3")){
       layout.next(scenePanel);
-      setCount += 1;
       String msg = "SET"+" "+"CAT"+" "+myColor;
       out.println(msg);
       out.flush();
