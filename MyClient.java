@@ -25,7 +25,7 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
   // フィールド宣言
   private static JButton boardArray[][], winButtonArray[];// ボード5*5
   private JButton startButton;
-  private int myColor, myNumber, turnNum;
+  private int myColor, turnNum;
   private ImageIcon myIcon, yourIcon, character1Img, character2Img, character3Img, winIcon;
   private ImageIcon mydoubleIcon, yourdoubleIcon;
   private ImageIcon s_myIcon, s_yourIcon, s_doubleIcon, s_mydoubleIcon, s_yourdoubleIcon; // 選択状態アイコン
@@ -325,12 +325,10 @@ public class MyClient extends JFrame implements MouseListener,MouseMotionListene
 
         if(myNumberInt % 2 != 0){
           myColor=0;// player1:red
-          myNumber=111;
           winFlag=false;
           turnNum=1;// 先行
         }else{
           myColor=1;// player2:blue
-          myNumber=222;
           winFlag=false;
           turnNum=0;// 後攻
         }
